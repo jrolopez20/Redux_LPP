@@ -9,7 +9,7 @@ class LONGESTPATH : IProblem<LongestPathSolver, LongestPathVerifier, LongestPath
 
     // --- Fields ---
     public string problemName { get; } = "Longest Path";
-    public string problemLink { get; } = "TODO";
+    public string problemLink { get; } = "https://en.wikipedia.org/wiki/Longest_path_problem";
     public string formalDefinition { get; } = "TODO";
     public string problemDefinition { get; } = "TODO";
     public string inputDescription { get; } = "TODO: short plain-English name for the input, e.g. 'Φ, a boolean formula'";
@@ -29,7 +29,7 @@ class LONGESTPATH : IProblem<LongestPathSolver, LongestPathVerifier, LongestPath
     public LongestPathSolver defaultSolver { get; } = new LongestPathSolver();
     public LongestPathVerifier defaultVerifier { get; } = new LongestPathVerifier();
     public LongestPathVisualization defaultVisualization { get; } = new LongestPathVisualization();
-    public string[] contributors { get; } = { "TODO" };
+    public string[] contributors { get; } = { "Alice Giola", "Sadman Hasan", "Javier Rodriguez Lopez" };
     // Declared, not derived: do NOT infer these from the Problems/<Folder>/ this file lives
     // in (the folder is a filing convention and is wrong for many existing problems).
     // Getting them wrong is a public correctness claim the API serves to callers.
