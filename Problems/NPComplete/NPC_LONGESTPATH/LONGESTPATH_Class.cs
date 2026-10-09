@@ -29,7 +29,7 @@ class LONGESTPATH : IProblem<LongestPathSolver, LongestPathVerifier, LongestPath
     
     public string certificateFormat { get; } = "TODO: describe the certificate string the verifier accepts with an embedded example, e.g. '(x1:True,x2:False,x3:True) -- one variable:Boolean pair per variable, comma-separated'";
     public string instance { get; set; } = string.Empty;
-    public string wikiName { get; } = "";
+    public string wikiName { get; } = "Longest path";
     public LongestPathSolver defaultSolver { get; } = new LongestPathSolver();
     public LongestPathVerifier defaultVerifier { get; } = new LongestPathVerifier();
     public LongestPathVisualization defaultVisualization { get; } = new LongestPathVisualization();
