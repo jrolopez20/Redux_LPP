@@ -10,8 +10,8 @@ class LONGESTPATH : IProblem<LongestPathSolver, LongestPathVerifier, LongestPath
     // --- Fields ---
     public string problemName { get; } = "Longest Path";
     public string problemLink { get; } = "https://en.wikipedia.org/wiki/Longest_path_problem";
-    public string formalDefinition { get; } = "TODO";
-    public string problemDefinition { get; } = "TODO";
+    public string formalDefinition { get; } = "Longest Path Problem = {<G, k> | Exists a simple path in G with at least k edges}.";
+    public string problemDefinition { get; } = "Longest Path Problem decision problem asks whether given a graph G = (V, E) and an integer k, whether G contains a simple path (no repeated vertices) with at least k edges.";
     public string inputDescription { get; } = "TODO: short plain-English name for the input, e.g. 'Φ, a boolean formula'";
     public string outputDescription { get; } = "TODO: short plain-English description of the output, e.g. 'True or False'";
     public string source { get; } = "TODO";
