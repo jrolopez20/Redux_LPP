@@ -12,7 +12,7 @@ class LongestPathVisualization : IVisualization<LONGESTPATH, API_GraphJSON> {
     public string source { get; } = "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness. San Francisco, CA, USA: W. H.Freeman, 1979.";
     public string sourceLink { get; } = "https://books.google.com/books?id=fjxGAQAAIAAJ";
     public string[] contributors { get; } = { "Alice Giola", "Sadman Hasan", "Javier Rodriguez Lopez" };
- 
+
     public VisualizationType visualizationType { get; } = VisualizationType.GraphD3;
     // The solver whose steps this visualization shows. Defaults to the problem's default solver.
     // Replace it with a specific solver if you prefer, e.g. `new MyBruteForce()`. This must stay
@@ -28,18 +28,36 @@ class LongestPathVisualization : IVisualization<LONGESTPATH, API_GraphJSON> {
         return instance.graph.ToAPIGraph();
     }
 
-    public API_GraphJSON SolvedVisualization(LONGESTPATH instance, string solution) {
-        List<string> solutionList = GraphParser.parseNodeListWithStringFunctions(solution);
-
+    public API_JSON SolvedVisualization(LONGESTPATH instance, string solution) {
         API_GraphJSON apiGraph = instance.graph.ToAPIGraph();
+        if (string.IsNullOrWhiteSpace(solution) || solution.Trim() == "{}")
+            return apiGraph;
 
-        for (int i = 0; i < apiGraph.nodes.Count; i++) {
-            if (solutionList.Contains(apiGraph.nodes[i].name)) {
-                apiGraph.nodes[i].color = "Solution";
-            } else {
-                apiGraph.nodes[i].color = "Background";
+        List<string> solutionList = GraphParser.parseNodeListWithStringFunctions(solution)
+            .Where(node => !string.IsNullOrWhiteSpace(node))
+            .ToList();
+        if (solutionList.Count == 0)
+            return apiGraph;
+
+        // Highlight nodes that are part of the solution path.
+        foreach (var node in apiGraph.nodes) {
+            if (solutionList.Contains(node.name))
+                node.color = "Solution";
+        }
+
+        // Highlight edges that are part of the solution path.
+        for (int i = 0; i < solutionList.Count - 1; i++) {
+            string from = solutionList[i];
+            string to = solutionList[i + 1];
+
+            foreach (var link in apiGraph.links) {
+                if ((link.source == from && link.target == to)
+                    || (link.source == to && link.target == from)) {
+                    link.color = "Solution";
+                }
             }
         }
+
         return apiGraph;
     }
 }
