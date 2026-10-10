@@ -17,22 +17,23 @@ class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, Longes
     public string outputDescription { get; } = "True or False, whether G has a simple path with at least k edges.";
     public string source { get; } = "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness. San Francisco, CA, USA: W. H.Freeman, 1979. ";
     public string sourceLink { get; } = "https://books.google.com/books?id=fjxGAQAAIAAJ";
-    
+
     // private static readonly string _defaultInstance = "(({0,1,2,3,4},{{1,0},{0,3},{1,2},{2,4},{1,3},{3,4},{4,1}}),2)";
     private static readonly string _defaultInstance = "(({1,2,3,4,5,6},{{1,2},{1,3},{2,3},{2,4},{3,5},{4,5},{4,6},{5,6}}),5)";
     public const string InstanceGrammar =
         "{((N,E),K) | N is set, E subset N unorderedcross N, K is int}";
-    public string defaultInstance { get; } = _defaultInstance;    
+    public string defaultInstance { get; } = _defaultInstance;
     // Short descriptive sentence with a concrete example. Consumed by
     // /ProblemProvider/info and by parse-error responses; this is the
     // canonical place to tell an LLM (or a human, or the GUI) what
     // shape your instance/certificate strings take.
     public string instanceFormat { get; } = $"Format: {InstanceGrammar} Example: {_defaultInstance}";
-    
-    public string certificateFormat { get; } = "TODO: describe the certificate string the verifier accepts with an embedded example, e.g. '(x1:True,x2:False,x3:True) -- one variable:Boolean pair per variable, comma-separated'";
+
+    public string certificateFormat { get; } =
+        $"Format: {LongestPathVerifier.CertificateGrammar}. Example: {LongestPathVerifier.CertificateExample}";
     public string instance { get; set; } = string.Empty;
     public string wikiName { get; } = "Longest path";
-    
+
     public UtilCollectionGraph graph { get; set; }
 
     public LongestPathSolver defaultSolver { get; } = new LongestPathSolver();
