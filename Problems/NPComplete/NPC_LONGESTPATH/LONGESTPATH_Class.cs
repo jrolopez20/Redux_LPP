@@ -18,7 +18,6 @@ class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, Longes
     public string source { get; } = "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness. San Francisco, CA, USA: W. H.Freeman, 1979. ";
     public string sourceLink { get; } = "https://books.google.com/books?id=fjxGAQAAIAAJ";
 
-    // private static readonly string _defaultInstance = "(({0,1,2,3,4},{{1,0},{0,3},{1,2},{2,4},{1,3},{3,4},{4,1}}),2)";
     private static readonly string _defaultInstance = "(({1,2,3,4,5,6},{{1,2},{1,3},{2,3},{2,4},{3,5},{4,5},{4,6},{5,6}}),5)";
     public const string InstanceGrammar =
         "{((N,E),K) | N is set, E subset N unorderedcross N, K is int}";
@@ -43,10 +42,9 @@ class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, Longes
     // Declared, not derived: do NOT infer these from the Problems/<Folder>/ this file lives
     // in (the folder is a filing convention and is wrong for many existing problems).
     // Getting them wrong is a public correctness claim the API serves to callers.
-    // TODO: replace Unclassified. A test in redux-tests/Metadata fails until you do, on purpose. See Interfaces/ComplexityClass.cs for what each value means.
-    public ComplexityClass complexityClass { get; } = ComplexityClass.Unclassified;
+    public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
     // TODO: replace Unclassified. A test in redux-tests/Metadata fails until you do, on purpose. See Interfaces/ProblemType.cs for what each value means.
-    public ProblemType problemType { get; } = ProblemType.Unclassified;
+    public ProblemType problemType { get; } = ProblemType.GraphTheory;
 
     // --- Properties ---
     private List<string> _nodes = new List<string>();
@@ -84,30 +82,6 @@ class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, Longes
             })
             .ToList();
         _K = int.Parse(longestPathGraph["K"].ToString());
-
-        // On a malformed instance, throw `ProblemParseException` (see
-        // Interfaces/ParseExceptions.cs). The controller layer catches it
-        // and returns HTTP 400 with `instanceFormat` quoted back to the
-        // caller. Example:
-        //
-        //   if (string.IsNullOrWhiteSpace(stringInstance)) {
-        //       throw new ProblemParseException("Longest Path", stringInstance, "instance is empty");
-        //   }
-
-        // TODO: implement parsing of string instance of Longest Path. SPADE is a class meant to help with this step, see https://github.com/Jetison333/SPADE/blob/main/Documentation/index.md for more information.
-        //
-        // StringParser parser = new("{(i, w, v) | i subset int cross int, w is int, v is int}");
-        // parser.parse(instance);
-        // items = parser["i"];
-        // W = int.Parse(parser["w"].ToString());
-        // V = int.Parse(parser["v"].ToString());
-        //
-        // Or a unidirected unweighted graph example using SPADE
-        //
-        // StringParser parser = new("{(N,E) | N is set, E subset N unorderdcross N}");
-        // parser.parse(instance);
-        // edges = parser["E"];
-        // nodes = parser["N"];
 
         graph = new UtilCollectionGraph(longestPathGraph["N"], longestPathGraph["E"]);
     }
