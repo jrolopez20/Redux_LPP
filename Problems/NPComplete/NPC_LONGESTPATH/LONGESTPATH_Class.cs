@@ -15,7 +15,7 @@ class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, Longes
     public string problemDefinition { get; } = "Longest Path Problem decision problem asks whether given a graph G = (V, E) and an integer k, whether G contains a simple path (no repeated vertices) with at least k edges.";
     public string inputDescription { get; } = "G, a graph, and k, the minimum number of edges in the path.";
     public string outputDescription { get; } = "True or False, whether G has a simple path with at least k edges.";
-    public string source { get; } = "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness. San Francisco, CA, USA: W. H.Freeman, 1979. ";
+    public string source { get; } = "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness. San Francisco, CA, USA: W. H.Freeman, 1979.";
     public string sourceLink { get; } = "https://books.google.com/books?id=fjxGAQAAIAAJ";
 
     private static readonly string _defaultInstance = "(({1,2,3,4,5,6},{{1,2},{1,3},{2,3},{2,4},{3,5},{4,5},{4,6},{5,6}}),5)";
@@ -43,7 +43,7 @@ class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, Longes
     // in (the folder is a filing convention and is wrong for many existing problems).
     // Getting them wrong is a public correctness claim the API serves to callers.
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
-    // TODO: replace Unclassified. A test in redux-tests/Metadata fails until you do, on purpose. See Interfaces/ProblemType.cs for what each value means.
+    
     public ProblemType problemType { get; } = ProblemType.GraphTheory;
 
     // --- Properties ---

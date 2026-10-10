@@ -9,16 +9,10 @@ namespace API.Problems.NPComplete.NPC_LONGESTPATH.Visualizations;
 class LongestPathVisualization : IVisualization<LONGESTPATH, API_GraphJSON> {
     public string visualizationName { get; } = "Longest Path Visualization";
     public string visualizationDefinition { get; } = "This is a default visualization for longest path";
-    public string source { get; } = "";
-    public string sourceLink { get; } = "TODO";
+    public string source { get; } = "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness. San Francisco, CA, USA: W. H.Freeman, 1979.";
+    public string sourceLink { get; } = "https://books.google.com/books?id=fjxGAQAAIAAJ";
     public string[] contributors { get; } = { "Alice Giola", "Sadman Hasan", "Javier Rodriguez Lopez" };
-    // TODO: replace Unimplemented with the VisualizationType matching the API_JSON shape you
-    // return below. A test in redux-tests/Metadata (VisualizationType_Tests, NoNewUndeclared)
-    // fails until you do, on purpose. If no existing renderer fits, make the problem's default
-    // visualization DummyVisualization instead of this class. Adding a NEW VisualizationType
-    // member means updating Documentation/visualization-types.json (checked by
-    // VisualizationType_Tests.ManifestMatchesEnum) and adding a renderer in the Redux_GUI repo
-    // (checked there by `npm run check:visualizations`).
+ 
     public VisualizationType visualizationType { get; } = VisualizationType.GraphD3;
     // The solver whose steps this visualization shows. Defaults to the problem's default solver.
     // Replace it with a specific solver if you prefer, e.g. `new MyBruteForce()`. This must stay
