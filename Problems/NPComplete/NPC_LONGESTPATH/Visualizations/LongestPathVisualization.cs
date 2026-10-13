@@ -42,9 +42,20 @@ class LongestPathVisualization : IVisualization<LONGESTPATH, API_GraphJSON> {
             return apiGraph;
 
         // Highlight nodes that are part of the solution path.
-        foreach (var node in apiGraph.nodes) {
-            if (solutionList.Contains(node.name))
-                node.color = "Solution";
+        if (solutionList.Count > 0) {
+            string firstNode = solutionList[0];
+            string lastNode = solutionList[solutionList.Count - 1];
+
+            foreach (var node in apiGraph.nodes) {
+                if (solutionList.Contains(node.name)) {
+                    if (node.name == firstNode || node.name == lastNode) {
+                        node.color = "Red";
+                    } else {
+                        node.color = "Solution";
+                    }
+                }
+                
+            }
         }
 
         // Highlight edges that are part of the solution path.
