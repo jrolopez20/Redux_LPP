@@ -65,6 +65,8 @@ class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, Longes
         set { _K = value; }
     }
 
+    public string sourceFile { get; } = SourceFile.Path();
+
     // --- Methods and Constructors ---
     public LONGESTPATH() : this(_defaultInstance) { }
 

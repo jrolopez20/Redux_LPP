@@ -26,6 +26,8 @@ class LongestPathVerifier : IVerifier<LONGESTPATH> {
         }
     }
 
+    public string sourceFile { get; } = SourceFile.Path();
+
     // --- Methods Including Constructors ---
     public LongestPathVerifier() { }
 

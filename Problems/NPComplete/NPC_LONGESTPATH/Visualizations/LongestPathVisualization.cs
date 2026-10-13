@@ -20,6 +20,8 @@ class LongestPathVisualization : IVisualization<LONGESTPATH, API_GraphJSON> {
     // initializer (=) here would recurse forever.
     public ISolver solver => new LONGESTPATH().defaultSolver;
 
+    public string sourceFile { get; } = SourceFile.Path();
+
     // --- Methods Including Constructors ---
     public LongestPathVisualization() {
 

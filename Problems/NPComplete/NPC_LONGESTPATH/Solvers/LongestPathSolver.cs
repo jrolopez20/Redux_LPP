@@ -24,6 +24,8 @@ class LongestPathSolver : ISolver<LONGESTPATH> {
         "O(2^(K+1) * (n + m) * (K+1)^(K+1)/(K+1)!), n = |nodes|, m = |edges|";
     public bool timerHasExpired { get; set; }
 
+    public string sourceFile { get; } = SourceFile.Path();
+
     // --- Methods Including Constructors ---
     public LongestPathSolver() { }
 
