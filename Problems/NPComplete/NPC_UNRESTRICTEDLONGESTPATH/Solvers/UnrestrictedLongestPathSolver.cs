@@ -1,9 +1,9 @@
 using System.Numerics;
 using API.Interfaces;
 
-namespace API.Problems.NPComplete.NPC_LONGESTPATH.Solvers;
+namespace API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Solvers;
 
-class LongestPathSolver : ISolver<LONGESTPATH> {
+class UnrestrictedLongestPathSolver : ISolver<UNRESTRICTEDLONGESTPATH> {
 
     // --- Fields ---
     public string solverName { get; } = "Longest Path Solver - Color Coding Algorithm";
@@ -27,9 +27,9 @@ class LongestPathSolver : ISolver<LONGESTPATH> {
     public string sourceFile { get; } = SourceFile.Path();
 
     // --- Methods Including Constructors ---
-    public LongestPathSolver() { }
+    public UnrestrictedLongestPathSolver() { }
 
-    public string solve(LONGESTPATH problem) {
+    public string solve(UNRESTRICTEDLONGESTPATH problem) {
         int n = problem.nodes.Count;
         if (n == 0)
             return "{}";

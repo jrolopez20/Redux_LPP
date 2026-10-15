@@ -1,18 +1,18 @@
 using API.Interfaces;
-using API.Problems.NPComplete.NPC_LONGESTPATH.Solvers;
-using API.Problems.NPComplete.NPC_LONGESTPATH.Verifiers;
-using API.Problems.NPComplete.NPC_LONGESTPATH.Visualizations;
+using API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Solvers;
+using API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Verifiers;
+using API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Visualizations;
 using SPADE;
 
-namespace API.Problems.NPComplete.NPC_LONGESTPATH;
+namespace API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH;
 
-class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, LongestPathVisualization, UtilCollectionGraph> {
+class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathSolver, UnrestrictedLongestPathVerifier, UnrestrictedLongestPathVisualization, UtilCollectionGraph> {
 
     // --- Fields ---
-    public string problemName { get; } = "Longest Path";
+    public string problemName { get; } = "Unrestricted Longest Path";
     public string problemLink { get; } = "https://en.wikipedia.org/wiki/Longest_path_problem";
-    public string formalDefinition { get; } = "Longest Path Problem = {<G, k> | Exists a simple path in G with at least k edges}.";
-    public string problemDefinition { get; } = "Longest Path Problem decision problem asks whether given a graph G = (V, E) and an integer k, whether G contains a simple path (no repeated vertices) with at least k edges.";
+    public string formalDefinition { get; } = "Unrestricted Longest Path Problem = {<G, k> | Exists a simple path in G with at least k edges}.";
+    public string problemDefinition { get; } = "Unrestricted Longest Path Problem decision problem asks whether given a graph G = (V, E) and an integer k, whether G contains a simple path (no repeated vertices) with at least k edges.";
     public string inputDescription { get; } = "G, a graph, and k, the minimum number of edges in the path.";
     public string outputDescription { get; } = "True or False, whether G has a simple path with at least k edges.";
     public string source { get; } = "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness. San Francisco, CA, USA: W. H.Freeman, 1979.";
@@ -29,15 +29,15 @@ class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, Longes
     public string instanceFormat { get; } = $"Format: {InstanceGrammar} Example: {_defaultInstance}";
 
     public string certificateFormat { get; } =
-        $"Format: {LongestPathVerifier.CertificateGrammar}. Example: {LongestPathVerifier.CertificateExample}";
+        $"Format: {UnrestrictedLongestPathVerifier.CertificateGrammar}. Example: {UnrestrictedLongestPathVerifier.CertificateExample}";
     public string instance { get; set; } = string.Empty;
     public string wikiName { get; } = "Longest path";
 
     public UtilCollectionGraph graph { get; set; }
 
-    public LongestPathSolver defaultSolver { get; } = new LongestPathSolver();
-    public LongestPathVerifier defaultVerifier { get; } = new LongestPathVerifier();
-    public LongestPathVisualization defaultVisualization { get; } = new LongestPathVisualization();
+    public UnrestrictedLongestPathSolver defaultSolver { get; } = new UnrestrictedLongestPathSolver();
+    public UnrestrictedLongestPathVerifier defaultVerifier { get; } = new UnrestrictedLongestPathVerifier();
+    public UnrestrictedLongestPathVisualization defaultVisualization { get; } = new UnrestrictedLongestPathVisualization();
     public string[] contributors { get; } = { "Alice Giola", "Sadman Hasan", "Javier Rodriguez Lopez" };
     // Declared, not derived: do NOT infer these from the Problems/<Folder>/ this file lives
     // in (the folder is a filing convention and is wrong for many existing problems).
@@ -68,9 +68,9 @@ class LONGESTPATH : IGraphProblem<LongestPathSolver, LongestPathVerifier, Longes
     public string sourceFile { get; } = SourceFile.Path();
 
     // --- Methods and Constructors ---
-    public LONGESTPATH() : this(_defaultInstance) { }
+    public UNRESTRICTEDLONGESTPATH() : this(_defaultInstance) { }
 
-    public LONGESTPATH(string stringInstance) {
+    public UNRESTRICTEDLONGESTPATH(string stringInstance) {
         instance = stringInstance;
 
         StringParser longestPathGraph = new(InstanceGrammar);
