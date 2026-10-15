@@ -6,10 +6,10 @@ using API.Interfaces.JSON_Objects.Graphs;
 namespace API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Visualizations;
 
 class UnrestrictedLongestPathVisualization : IVisualization<UNRESTRICTEDLONGESTPATH, API_GraphJSON> {
-    public string visualizationName { get; } = "Longest Path Visualization";
-    public string visualizationDefinition { get; } = "This is a default visualization for longest path";
-    public string source { get; } = "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness. San Francisco, CA, USA: W. H.Freeman, 1979.";
-    public string sourceLink { get; } = "https://books.google.com/books?id=fjxGAQAAIAAJ";
+    public string visualizationName { get; } = "Unrestricted Longest Path Visualization";
+    public string visualizationDefinition { get; } = "This is a default visualization for unrestricted longest path problem";
+    public string source { get; } = "Monien, B. (1985). How to find long paths efficiently. North-Holland Mathematics Studies, 239–254.";
+    public string sourceLink { get; } = "https://doi.org/10.1016/s0304-0208(08)73110-4";
     public string[] contributors { get; } = { "Alice Giola", "Sadman Hasan", "Javier Rodriguez Lopez" };
 
     public VisualizationType visualizationType { get; } = VisualizationType.GraphD3;

@@ -15,8 +15,8 @@ class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathSolver, Unr
     public string problemDefinition { get; } = "Unrestricted Longest Path Problem decision problem asks whether given a graph G = (V, E) and an integer k, whether G contains a simple path (no repeated vertices) with at least k edges.";
     public string inputDescription { get; } = "G, a graph, and k, the minimum number of edges in the path.";
     public string outputDescription { get; } = "True or False, whether G has a simple path with at least k edges.";
-    public string source { get; } = "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness. San Francisco, CA, USA: W. H.Freeman, 1979.";
-    public string sourceLink { get; } = "https://books.google.com/books?id=fjxGAQAAIAAJ";
+    public string source { get; } = "Monien, B. (1985). How to find long paths efficiently. North-Holland Mathematics Studies, 239–254.";
+    public string sourceLink { get; } = "https://doi.org/10.1016/s0304-0208(08)73110-4";
 
     private static readonly string _defaultInstance = "(({1,2,3,4,5,6},{{1,2},{1,3},{2,3},{2,4},{3,5},{4,5},{4,6},{5,6}}),5)";
     public const string InstanceGrammar =

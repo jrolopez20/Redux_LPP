@@ -13,8 +13,8 @@ class UnrestrictedLongestPathVerifier : IVerifier<UNRESTRICTEDLONGESTPATH> {
     public string verifierDefinition { get; } =
         "Checks that the certificate lists a simple path in the input graph with at least K edges.";
     public string source { get; } =
-        "M. R. Garey and D. S. Johnson, Computers and Intractability: A Guide to the Theory of NP-Completeness, 1979.";
-    public string sourceLink { get; } = "https://books.google.com/books?id=fjxGAQAAIAAJ";
+        "Monien, B. (1985). How to find long paths efficiently. North-Holland Mathematics Studies, 239–254.";
+    public string sourceLink { get; } = "https://doi.org/10.1016/s0304-0208(08)73110-4";
     public string[] contributors { get; } = { "Alice Giola", "Sadman Hasan", "Javier Rodriguez Lopez" };
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? complexity { get; set; } = "O(n + m + p), n = |nodes|, m = |edges|, p = certificate path length";
