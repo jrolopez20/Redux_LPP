@@ -14,8 +14,10 @@ class UnrestrictedLongestPathSolver : ISolver<UNRESTRICTEDLONGESTPATH> {
     public bool timerHasExpired { get => expired; set => expired = value; }
     public SolverType solverType { get; } = SolverType.Backtracking;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Factorial;
-    public MathematicalFunction timeComplexity { get; } = new("n * n! + m", ", n = |V|, m = |E|; excludes input parsing");
-    public MathematicalFunction spaceComplexity { get; } = new("n + m", ", n = |V|, m = |E|; excludes input parsing");
+    public string complexity { get; } =
+    "O(n * n! + m), n = |V|, m = |E|; excludes input parsing";
+    public string spaceComplexity { get; } =
+        "O(n + m), n = |V|, m = |E|; excludes input parsing";
 
     public UnrestrictedLongestPathSolver() { }
 
