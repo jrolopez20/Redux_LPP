@@ -41,7 +41,7 @@ class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathSolver, Unr
         "W. H. Freeman, 1979. NP-hardness also follows directly from undirected Hamiltonian Path by taking k=|V|-1; " +
         "a simple path is a polynomially checkable certificate.";
     public string sourceLink { get; } = "https://openlibrary.org/isbn/9780716710455";
-    public string sourceFile { get; } = SourceFile.Path();
+    public string sourceFile { get; } = "Problems/NPComplete/NPC_UNRESTRICTEDLONGESTPATH/UNRESTRICTEDLONGESTPATH_Class.cs";
     public string wikiName { get; } = "";
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
     public ProblemType problemType { get; } = ProblemType.GraphTheory;

@@ -17,7 +17,7 @@ class UnrestrictedLongestPathVerifier : IVerifier<UNRESTRICTEDLONGESTPATH> {
     public string verifierDefinition { get; } =
         "Checks that an ordered list is a simple path with at least k edges, allowing any endpoints.";
     public string source { get; } = "Direct verification of the simple-path certificate definition.";
-    public string sourceFile { get; } = SourceFile.Path();
+    public string sourceFile { get; } = "Problems/NPComplete/NPC_UNRESTRICTEDLONGESTPATH/Verifiers/UnrestrictedLongestPathVerifier.cs";
     public string[] contributors { get; } = Array.Empty<string>();
     public string certificate { get; private set; } = "";
 

@@ -8,16 +8,14 @@ class UnrestrictedLongestPathSolver : ISolver<UNRESTRICTEDLONGESTPATH> {
         "Exact elementary search over simple paths starting at every vertex, stopping after finding k edges. " +
         "Returns an ordered vertex list on YES, () on NO, or Search timed out if interrupted.";
     public string source { get; } = "Exhaustive simple-path enumeration with backtracking.";
-    public string sourceFile { get; } = SourceFile.Path();
+    public string sourceFile { get; } = "Problems/NPComplete/NPC_UNRESTRICTEDLONGESTPATH/Solvers/UnrestrictedLongestPathSolver.cs";
     public string[] contributors { get; } = Array.Empty<string>();
     private volatile bool expired;
     public bool timerHasExpired { get => expired; set => expired = value; }
     public SolverType solverType { get; } = SolverType.Backtracking;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Factorial;
-    public string complexity { get; } =
-    "O(n * n! + m), n = |V|, m = |E|; excludes input parsing";
-    public string spaceComplexity { get; } =
-        "O(n + m), n = |V|, m = |E|; excludes input parsing";
+    public string complexity { get; } = "O(n * n! + m), n = |V|, m = |E|; excludes input parsing";
+    public string spaceComplexity { get; } = "O(n + m), n = |V|, m = |E|; excludes input parsing";
 
     public UnrestrictedLongestPathSolver() { }
 
