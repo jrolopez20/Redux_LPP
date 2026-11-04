@@ -21,8 +21,8 @@ class UnrestrictedLongestPathSubsetDP : ISolver<UNRESTRICTEDLONGESTPATH> {
     public SolverType solverType { get; } = SolverType.DynamicProgramming;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Exponential;
     // BigInteger masks can span O(n) machine words: include that conservative factor.
-    public MathematicalFunction timeComplexity { get; } = new("2^n * n * (n + m)", ", n = |V|, m = |E|; expected dictionary costs with BigInteger operations, excluding parsing");
-    public MathematicalFunction spaceComplexity { get; } = new("2^n * n^2 + m", ", n = |V|, m = |E|; conservative machine-word bound including BigInteger masks, excluding parsing");
+    public string complexity { get; } = "O(2^n * n * (n + m)), n = |V|, m = |E|; expected dictionary costs with BigInteger operations, excluding parsing";
+    public string spaceComplexity { get; } = "O(2^n * n^2 + m), n = |V|, m = |E|; conservative machine-word bound including BigInteger masks, excluding parsing";
 
     public UnrestrictedLongestPathSubsetDP() { }
 
