@@ -11,7 +11,7 @@ using SPADE;
 
 namespace API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH;
 
-class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathSolver, UnrestrictedLongestPathVerifier, DummyVisualization, UtilCollectionGraph> {
+class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathBacktracking, UnrestrictedLongestPathVerifier, DummyVisualization, UtilCollectionGraph> {
     public const string InstanceGrammar = "{((N,E),K) | N is set, E subset N unorderedcross N, K is int}";
     private const string DefaultInstance = "(({1,2,3,4},{{1,2},{2,3}}),2)";
     internal const string VertexPattern = @"[^\s,{}()]+";
@@ -56,7 +56,7 @@ class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathSolver, Unr
         "K is a nonnegative decimal integer; whitespace between tokens is allowed.";
     public string certificateFormat { get; } =
         $"Format: {UnrestrictedLongestPathVerifier.CertificateGrammar} Example: {UnrestrictedLongestPathVerifier.CertificateExample}";
-    public UnrestrictedLongestPathSolver defaultSolver { get; } = new();
+    public UnrestrictedLongestPathBacktracking defaultSolver { get; } = new();
     public UnrestrictedLongestPathVerifier defaultVerifier { get; } = new();
     public DummyVisualization defaultVisualization { get; } = new();
     public UtilCollectionGraph graph { get; }
