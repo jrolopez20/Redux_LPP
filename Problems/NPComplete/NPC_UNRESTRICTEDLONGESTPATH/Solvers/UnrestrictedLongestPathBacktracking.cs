@@ -25,7 +25,7 @@ class UnrestrictedLongestPathBacktracking : ISolver<UNRESTRICTEDLONGESTPATH> {
         if (UnrestrictedLongestPathSearchGraph.TryTrivial(problem, out string answer)) return answer;
         var graph = UnrestrictedLongestPathSearchGraph.Create(problem, () => timerHasExpired);
         if (graph is null) return UnrestrictedLongestPathSearchGraph.Timeout;
-        int target = problem.K + 1;
+        int target = checked((int)problem.K + 1);
         int[] path = new int[target];
         int[] nextNeighbor = new int[target];
         bool[] used = new bool[graph.Count];
