@@ -24,6 +24,7 @@ class ARCSET : IGraphProblem<ArcSetBruteForce, ArcSetVerifier, ArcSetDefaultVisu
     public string outputDescription { get; } = "True or False, whether removing at most k edges can make G acyclic";
 
     public string source { get; } = "Karp, Richard M. Reducibility among combinatorial problems. Complexity of computer computations. Springer, Boston, MA, 1972. 85-103.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://en.wikipedia.org/wiki/Feedback_arc_set";
 
     //ALEX NOTE: The standard mathematical form for a DIGRAPH is A = {x,y,z} r = {(x,y),(y,z),(z,x)} where A is a set of nodes and r is a set of pairs of edges. (r stands for relation)
@@ -48,6 +49,7 @@ class ARCSET : IGraphProblem<ArcSetBruteForce, ArcSetVerifier, ArcSetDefaultVisu
     // Declared, not derived. ARCSET (Feedback Arc Set) is NP-complete (Karp, 1972).
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
     public ProblemType problemType { get; } = ProblemType.GraphTheory;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     public string[] contributors { get; } = { "Alex Diviney" };
 

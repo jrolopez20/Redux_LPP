@@ -1,13 +1,13 @@
-using API.DummyClasses;
 using API.Interfaces;
 using API.Problems.NPComplete.NPC_SETCOVER.Solvers;
 using API.Problems.NPComplete.NPC_SETCOVER.Verifiers;
+using API.Problems.NPComplete.NPC_SETCOVER.Visualizations;
 using Microsoft.AspNetCore.Http.Features;
 using SPADE;
 
 namespace API.Problems.NPComplete.NPC_SETCOVER;
 
-class SETCOVER : IProblem<SetCoverBruteForce, SetCoverVerifier, DummyVisualization> {
+class SETCOVER : IProblem<SetCoverBruteForce, SetCoverVerifier, SetCoverDefaultVisualization> {
 
     // --- Fields ---
     public string problemName { get; } = "Set Cover";
@@ -17,6 +17,7 @@ class SETCOVER : IProblem<SetCoverBruteForce, SetCoverVerifier, DummyVisualizati
     public string inputDescription { get; } = "U, a universe of elements, S, a collection of subsets of U, and k, the maximum number of subsets";
     public string outputDescription { get; } = "True or False, whether k subsets from S can be chosen whose union covers U";
     public string source { get; } = "Karp, Richard M. Reducibility among combinatorial problems. Complexity of computer computations. Springer, Boston, MA, 1972. 85-103.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://cgi.di.uoa.gr/~sgk/teaching/grad/handouts/karp.pdf";
     public const string InstanceGrammar = "{(U,S,K) | U is set, S subset {a | a subset U}}";
     private static string _defaultInstance = "({1,2,3,4,5},{{1,2,3},{2,4},{3,4},{4,5}},3)";
@@ -32,11 +33,12 @@ class SETCOVER : IProblem<SetCoverBruteForce, SetCoverVerifier, DummyVisualizati
     private int _K = 3;
     public SetCoverBruteForce defaultSolver { get; } = new SetCoverBruteForce();
     public SetCoverVerifier defaultVerifier { get; } = new SetCoverVerifier();
-    public DummyVisualization defaultVisualization { get; } = new DummyVisualization();
+    public SetCoverDefaultVisualization defaultVisualization { get; } = new SetCoverDefaultVisualization();
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     // Declared, not derived. SETCOVER is NP-complete (Karp, 1972).
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
     public ProblemType problemType { get; } = ProblemType.SetsAndPartitions;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     // --- Properties ---
     public List<string> universal {

@@ -17,6 +17,7 @@ class DEUTSCHJOZSA : IProblem<DeutschJozsaClassicalSolver, DeutschJozsaVerifier,
     public string source { get; } = "Deutsch, David and Jozsa, Richard. 1992. Rapid solution of problems by quantum computation. Proc. R. Soc. Lond. A439553-558"; // Academic paper proper citation
     public string sourceLink { get; } = "https://royalsocietypublishing.org/doi/10.1098/rspa.1992.0167"; // Link to the academic paper
     public const string InstanceGrammar = "{f | f is list}";
+    public string sourceFile { get; } = SourceFile.Path();
     private static readonly string _defaultInstance = "(1, 1, 1, 1)";
     public string defaultInstance { get; } = _defaultInstance;
     public string instance { get; set; } = string.Empty;
@@ -35,6 +36,8 @@ class DEUTSCHJOZSA : IProblem<DeutschJozsaClassicalSolver, DeutschJozsaVerifier,
     // ComplexityClass.EQP.
     public ComplexityClass complexityClass { get; } = ComplexityClass.EQP;
     public ProblemType problemType { get; } = ProblemType.Miscellaneous;
+    // Variant (#616): Judgement call: a promise problem whose answer is one of two (constant or balanced).
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     public int n { get; set; }
     public List<int> w { get; set; } = new List<int>();

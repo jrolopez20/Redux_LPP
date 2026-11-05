@@ -15,6 +15,7 @@ class TOPOLOGICALSORT : IGraphProblem<KahnsAlgorithm, TopologicalSortVerifier, T
     public string inputDescription { get; } = "G, a directed graph";
     public string outputDescription { get; } = "A valid topological ordering of the vertices of G";
     public string source { get; } = "Kahn, A. B. (1962). Topological sorting of large networks. Communications of the ACM, 5(11), 558-562.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://dl.acm.org/doi/10.1145/368996.369025";
     public const string InstanceGrammar = "{(N,E) | N is set, E subset N cross N}";
     private static string _defaultInstance = "({1,2,3,4,5,6},{(1,2),(1,3),(2,4),(3,4),(4,5),(3,6)})";
@@ -36,6 +37,8 @@ class TOPOLOGICALSORT : IGraphProblem<KahnsAlgorithm, TopologicalSortVerifier, T
     // reasons.
     public ComplexityClass complexityClass { get; } = ComplexityClass.P;
     public ProblemType problemType { get; } = ProblemType.GraphTheory;
+    // Variant (#616): Judgement call: any valid ordering is accepted, so there is nothing to optimize.
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     // --- Properties ---
     public List<string> nodes {

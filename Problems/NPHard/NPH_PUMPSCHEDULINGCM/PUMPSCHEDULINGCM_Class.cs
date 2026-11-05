@@ -42,12 +42,14 @@ class PUMPSCHEDULINGCM : IProblem<PumpSchedulingCMSolver, PumpSchedulingCMVerifi
     public string inputDescription { get; } = "Tank state, hourly water demand, peak-hour tariffs, and pump specifications";
     public string outputDescription { get; } = "The hourly pump activation schedule and its total cost, minimizing energy and startup costs";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string wikiName { get; } = "";
     public string[] contributors { get; } = { "Michael Trosper" };
     // Declared, not derived. Correctly filed under Problems/NPHard/ already; this
     // makes the folder's claim machine-checkable instead of implicit.
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPHard;
     public ProblemType problemType { get; } = ProblemType.SequencingAndScheduling;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Optimization;
 
     // Grammar: 3-section tuple — Tank, Demand config, Pumps.
     // D nests demand curve, peak hours, and tariff rates together as one section.

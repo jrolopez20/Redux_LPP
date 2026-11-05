@@ -12,6 +12,7 @@ class DirectedHamiltonianBruteForce : ISolver<DIRECTEDHAMILTONIAN> {
     public string solverName { get; } = "Directed Hamiltonian Brute Force";
     public string solverDefinition { get; } = "This is a brute force solver for the NP-Complete Directed Hamiltonian Cycle problem";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Does real (if minor) pruning, but tagged BruteForce per its class name
@@ -24,7 +25,7 @@ class DirectedHamiltonianBruteForce : ISolver<DIRECTEDHAMILTONIAN> {
     // graph (the worst case) it never trips, so all n! permutations are still generated. Each yielded
     // permutation costs O(n) to build (CombinationToCertificate), and DirectedHamiltonianVerifier walks
     // it in O(n) steps, each doing an O(m) List<>.Contains edge lookup -- O(n*m) per verify call.
-    public string complexity { get; } = "O(n! * n * m), n = |nodes|, m = |edges|";
+    public MathematicalFunction timeComplexity { get; } = new("n! * n * m", ", n = |nodes|, m = |edges|");
 
     // --- Methods Including Constructors ---
 
@@ -44,6 +45,8 @@ class DirectedHamiltonianBruteForce : ISolver<DIRECTEDHAMILTONIAN> {
     }
 
     private IEnumerable<List<string>> PermuteWithPruning(List<string> nodes, DIRECTEDHAMILTONIAN graph, int start = 0) {
+        // #935: stop at the time limit (pruned branches can run long without yielding); solve() then returns the timed-out answer.
+        if (timerHasExpired) yield break;
         if (start == nodes.Count - 1) {
             yield return new List<string>(nodes);
         } else {
@@ -63,11 +66,13 @@ class DirectedHamiltonianBruteForce : ISolver<DIRECTEDHAMILTONIAN> {
 
     public string solve(DIRECTEDHAMILTONIAN hamiltonian) {
         foreach (var combination in PermuteWithPruning(hamiltonian.nodes, hamiltonian)) {
+            if (timerHasExpired) return SolveRun.TimedOutAnswer;
             string certificate = CombinationToCertificate(combination);
             if (hamiltonian.defaultVerifier.verify(hamiltonian, certificate)) {
                 return certificate;
             }
         }
+        if (timerHasExpired) return SolveRun.TimedOutAnswer;
 
         return "{}";
     }

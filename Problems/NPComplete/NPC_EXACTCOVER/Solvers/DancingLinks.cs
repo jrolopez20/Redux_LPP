@@ -9,11 +9,13 @@ class DancingLinks : ISolver<EXACTCOVER> {
     public string solverName { get; } = "Knuth's Algorithm X";
     public string solverDefinition { get; } = "";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Exact search WITH pruning (Algorithm X via dancing links) -- distinct
-    // from ExactCoverBruteForce, which does not prune.
-    public SolverType solverType { get; } = SolverType.Backtracking;
+    // from ExactCoverBruteForce, which does not prune. Also DepthFirstSearch: iterate() recurses one
+    // row choice deeper before trying the next (#842).
+    public SolverType solverType { get; } = SolverType.Backtracking | SolverType.DepthFirstSearch;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Exponential;
     // Choosing the minimum-remaining-rows column each step (iterate's OrderBy) is a heuristic that cuts
     // branching in practice, but it does not change the worst-case bound: any subset of the s = |S| rows
@@ -21,7 +23,7 @@ class DancingLinks : ISolver<EXACTCOVER> {
     // the standard O(2^s) exact-cover worst case. Each node's select/deselect walks, for every column a
     // row covers (<= x = |X|), every row covering that column (<= s), every column that row covers
     // (<= x), doing an O(s) List<int>.Remove -- O(s^2 * x^2) per node in the worst (densest) case.
-    public string complexity { get; } = "O(2^s * s^2 * x^2), s = |S| (rows/subsets), x = |X| (columns/universe)";
+    public MathematicalFunction timeComplexity { get; } = new("2^s * s^2 * x^2", ", s = |S| (rows/subsets), x = |X| (columns/universe)");
 
     // --- Methods Including Constructors ---
     public DancingLinks() {
@@ -53,6 +55,7 @@ class DancingLinks : ISolver<EXACTCOVER> {
         Stack<int> selectedSets = new Stack<int>();
         bool foundSolution = false;
         iterate(Y, ref X, ref selectedSets, ref foundSolution);
+        if (timerHasExpired) return SolveRun.TimedOutAnswer;
 
         if (selectedSets.Any()) {
             return solutionToCertificate(selectedSets, exactCover);
@@ -67,6 +70,7 @@ class DancingLinks : ISolver<EXACTCOVER> {
         else {
             int minimumColumn = X.OrderBy(kv => kv.Value.Count).First().Key;
             foreach (var row in X[minimumColumn]) {
+                if (timerHasExpired) return; // #935: unwind at the time limit; solve() returns the timed-out answer
                 solution.Push(row);
                 Stack<List<int>> columns = select(Y, ref X, row);
                 iterate(Y, ref X, ref solution, ref foundSolution);

@@ -15,6 +15,7 @@ class MAXCUT : IGraphProblem<MaxCutSolver, MaxCutVerifier, MaxCutVisualization, 
     public string outputDescription { get; } = "The set of vertices forming one side of a maximum-weight cut";
     public string[] contributors { get; } = { "Max Grünwoldt", "Eric Hill", "Michael Trosper" };
     public string source { get; } = "Karp, Richard M. Reducibility among combinatorial problems. Complexity of computer computations. Springer, Boston, MA, 1972. 85-103.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://cgi.di.uoa.gr/~sgk/teaching/grad/handouts/karp.pdf";
     public static string _defaultInstance { get; } = "({1,2,3,4,5},{({2,1},5),({1,3},4),({2,3},2),({3,5},1),({2,4},4),({4,5},2)})";
     public string defaultInstance { get; } = _defaultInstance;
@@ -34,6 +35,7 @@ class MAXCUT : IGraphProblem<MaxCutSolver, MaxCutVerifier, MaxCutVisualization, 
     // min-cut (P_MINCUT), which is in P.
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPHard;
     public ProblemType problemType { get; } = ProblemType.NetworkDesign;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Optimization;
 
     public List<string> nodes { get => _nodes; set => _nodes = value; }
     public List<(string source, string destination, int weight)> edges { get => _edges; set => _edges = value; }

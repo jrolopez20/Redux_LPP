@@ -17,6 +17,7 @@ class HeuristicSolver : ISolver<SETCOVER> {
     + " structure, so it lacks DLX's O(1) undo per step.";
     public string source { get; } = "Knuth, D. E. (2000). Dancing links. In Millennium Perspectives in Computer"
     + " Science, 187-214. arXiv:cs/0011047.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://arxiv.org/abs/cs/0011047";
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
@@ -30,7 +31,7 @@ class HeuristicSolver : ISolver<SETCOVER> {
     // by the number of subsets s covering the current minimum column, and recursion is cut off
     // once the partial solution exceeds K sets. Per-node cost is dominated by the X.OrderBy scan
     // over remaining columns (O(u log u), u = |universal|).
-    public string complexity { get; } = "O(s^K * u log u), s = |subsets|, u = |universal|, K = target cover size";
+    public MathematicalFunction timeComplexity { get; } = new("s^K * u log u", ", s = |subsets|, u = |universal|, K = target cover size");
 
     // --- Methods Including Constructors ---
     public HeuristicSolver() {
@@ -66,6 +67,7 @@ class HeuristicSolver : ISolver<SETCOVER> {
 
         Console.WriteLine(stopwatch.ElapsedMilliseconds);
 
+        if (timerHasExpired) return SolveRun.TimedOutAnswer;
         if (selectedSets.Any()) {
             return solutionToCertificate(selectedSets, setCover);
         }
@@ -74,6 +76,7 @@ class HeuristicSolver : ISolver<SETCOVER> {
     }
 
     private void iterate(Dictionary<string, List<string>> Y, ref Dictionary<string, List<string>> X, ref Stack<string> solution, ref bool foundSolution, int K) {
+        if (timerHasExpired) return; // #935: stop at the time limit; solve() reports it
         if (solution.Count() > K) return;
         if (!X.Keys.Any()) foundSolution = true;
         if (foundSolution == true) return;
@@ -83,7 +86,7 @@ class HeuristicSolver : ISolver<SETCOVER> {
                 solution.Push(row);
                 Stack<List<string>> columns = select(Y, ref X, row);
                 iterate(Y, ref X, ref solution, ref foundSolution, K);
-                if (foundSolution == true) return;
+                if (foundSolution == true || timerHasExpired) return;
                 deselect(Y, ref X, row, ref columns);
                 solution.Pop();
             }

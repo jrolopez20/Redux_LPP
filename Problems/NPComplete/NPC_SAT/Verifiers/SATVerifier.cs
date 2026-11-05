@@ -6,9 +6,10 @@ namespace API.Problems.NPComplete.NPC_SAT.Verifiers;
 class SATVerifier : IVerifier<SAT> {
 
     #region Fields
-    public string verifierName { get; } = "Default SAT Verifier";
+    public string verifierName { get; } = "SAT Solution Verifier";
     public string verifierDefinition { get; } = "This is a verifier for SAT";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Daniel Igbokwe", "Show Pratoomratana" };
 
     private string _complexity = " ";

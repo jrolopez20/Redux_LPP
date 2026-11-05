@@ -16,6 +16,7 @@ class LosslessDataCompressionSolver : ISolver<LOSSLESSDATACOMPRESSION> {
 
     public string source { get; } =
         "https://www.ias.ac.in/article/fulltext/reso/011/02/0091-0099";
+    public string sourceFile { get; } = SourceFile.Path();
 
     public string[] contributors { get; } = { "Pramesh Shah", "Bektur Akkabakov" };
 
@@ -27,7 +28,7 @@ class LosslessDataCompressionSolver : ISolver<LOSSLESSDATACOMPRESSION> {
     // re-sorts the remaining node list on every merge instead of using a heap, so tree
     // construction is O(k^2 log k) rather than the classical O(n log n) heap-based bound
     // (k = distinct characters, k <= n). EncodeInput adds O(n * k) (code length <= k-1).
-    public string complexity { get; } = "O(k^2 log k + n*k), n = input length, k <= n = distinct characters";
+    public MathematicalFunction timeComplexity { get; } = new("k^2 log k + n*k", ", n = input length, k <= n = distinct characters");
 
     // Constructors
 
@@ -41,7 +42,7 @@ class LosslessDataCompressionSolver : ISolver<LOSSLESSDATACOMPRESSION> {
 
         // always check the timer first.
         if (timerHasExpired) {
-            return "timeout";
+            return SolveRun.TimedOutAnswer;
         }
 
         // the problem instance is the raw text we want to compress.
@@ -65,14 +66,14 @@ class LosslessDataCompressionSolver : ISolver<LOSSLESSDATACOMPRESSION> {
         Dictionary<char, int> frequencies = BuildFrequencyTable(input);
 
         if (timerHasExpired) {
-            return "timeout";
+            return SolveRun.TimedOutAnswer;
         }
 
         // second: build the Huffman tree from the frequencies.
         HuffmanNode root = BuildHuffmanTree(frequencies);
 
         if (timerHasExpired) {
-            return "timeout";
+            return SolveRun.TimedOutAnswer;
         }
 
         // thurd: Walk the tree and create binary codes.
@@ -80,7 +81,7 @@ class LosslessDataCompressionSolver : ISolver<LOSSLESSDATACOMPRESSION> {
         BuildCodeTable(root, "", codes);
 
         if (timerHasExpired) {
-            return "timeout";
+            return SolveRun.TimedOutAnswer;
         }
 
         // fourth: encodes the original input using the code table.
@@ -135,6 +136,7 @@ class LosslessDataCompressionSolver : ISolver<LOSSLESSDATACOMPRESSION> {
 
         // keeps merging the two lowest frequency nodes until one tree remains.
         while (nodes.Count > 1) {
+            if (timerHasExpired) break; // #935: stop at the time limit; solve() reports it
             SortNodes(nodes);
 
             HuffmanNode left = nodes[0];

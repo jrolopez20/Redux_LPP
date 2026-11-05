@@ -12,6 +12,7 @@ class HamiltonianBruteForce : ISolver<HAMILTONIAN> {
     public string solverName { get; } = "Hamiltonian Brute Force";
     public string solverDefinition { get; } = "This is a brute force solver for the NP-Complete Hamiltonian Cycle problem";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Does real (if minor) pruning, but tagged BruteForce per its class name
@@ -24,7 +25,7 @@ class HamiltonianBruteForce : ISolver<HAMILTONIAN> {
     // graph (the worst case) it never trips, so all n! permutations are still generated. Each yielded
     // permutation costs O(n) to build (CombinationToCertificate), and HamiltonianVerifier walks it in
     // O(n) steps, each doing two O(m) List<>.Contains edge lookups -- O(n*m) per verify call.
-    public string complexity { get; } = "O(n! * n * m), n = |nodes|, m = |edges|";
+    public MathematicalFunction timeComplexity { get; } = new("n! * n * m", ", n = |nodes|, m = |edges|");
 
     // --- Methods Including Constructors ---
     public HamiltonianBruteForce() { }
@@ -51,6 +52,7 @@ class HamiltonianBruteForce : ISolver<HAMILTONIAN> {
             yield return new List<string>(nodes);
         } else {
             for (int i = start; i < nodes.Count; i++) {
+                if (timerHasExpired) yield break; // #935: stop at the time limit (solve() then reports it)
                 (nodes[start], nodes[i]) = (nodes[i], nodes[start]);
 
                 // Early pruning: check edge between last node in partial path and current node
@@ -72,6 +74,7 @@ class HamiltonianBruteForce : ISolver<HAMILTONIAN> {
             }
         }
 
+        if (timerHasExpired) return SolveRun.TimedOutAnswer;
         return "{}";
     }
 }

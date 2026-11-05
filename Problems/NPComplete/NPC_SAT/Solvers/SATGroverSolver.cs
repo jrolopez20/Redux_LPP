@@ -15,6 +15,7 @@ class SATGroverSolver : ISolver<SAT> {
     public string solverName { get; } = "Grover's Algorithm";
     public string solverDefinition { get; } = "This solver builds the expression as a quantum circuit and then uses Grover's algorithm to probablisticly detemine a solution";
     public string source { get; } = "External API: towel.aws.cose.isu.edu:8080 or localhost:5000";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Jason L. Wright" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Delegates to the external quantum-simulator service.
@@ -22,7 +23,7 @@ class SATGroverSolver : ISolver<SAT> {
     // Grover search over the 2^v possible assignments to the formula's v boolean variables
     // takes O(sqrt(2^v)) oracle queries; this solver ships the whole formula to the quantum
     // endpoint in a single call that runs that search.
-    public string complexity { get; } = "O(sqrt(2^v)) oracle queries, where v is the number of boolean variables in the formula";
+    public MathematicalFunction timeComplexity { get; } = new("sqrt(2^v)", " oracle queries, where v is the number of boolean variables in the formula");
 
     // --- Constructors ---
 
@@ -41,13 +42,12 @@ class SATGroverSolver : ISolver<SAT> {
 
     // --- Methods ---
 
+    // On any failure of the quantum service this throws SolverUnavailableException (HTTP 503 solver_unavailable), never
+    // an error text in place of the answer (#625).
     public string solve(SAT problem) {
-        try {
-            var requestBody = new JSON_Sat_Problem(problem.instance);
+        var requestBody = new JSON_Sat_Problem(problem.instance);
 
-            // Create the API client
-            var client = new QuantumServerAPI();
-
+        return QuantumServerAPI.Ask(this, problem.problemName, client => {
             // Make the API call to the quantum endpoint
             string response = client.PostAsync("/sat-quantum", requestBody).Result;
 
@@ -55,20 +55,18 @@ class SATGroverSolver : ISolver<SAT> {
             using JsonDocument doc = JsonDocument.Parse(response);
             JsonElement root = doc.RootElement;
 
-            if (root.TryGetProperty("qasm", out JsonElement circuitElement)) {
+            if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("qasm", out JsonElement circuitElement)) {
                 problem.circuit = circuitElement.GetString() ?? "";
             }
 
-            if (root.TryGetProperty("answer", out JsonElement answerElement)) {
-                return answerElement.GetString() ?? "No answer found";
+            if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("answer", out JsonElement answerElement)
+                && answerElement.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(answerElement.GetString())) {
+                return answerElement.GetString()!;
             }
 
-            // If no answer field, return the whole response
-            return response;
-        } catch (Exception ex) {
-            // Return error information in case of failure
-            return $"{{\"error\": \"{ex.Message}\"}}";
-        }
+            // No answer in the response: not an answer to pass on.
+            throw QuantumServerAPI.MissingAnswer("answer", response);
+        });
     }
 
 }

@@ -10,6 +10,7 @@ class GraphColoringBruteForce : ISolver<GRAPHCOLORING> {
     public string solverName { get; } = "Graph Coloring Brute Force";
     public string solverDefinition { get; } = "This is a brute force solver for the NP-Complete Graph Coloring problem";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Unpruned exhaustive enumeration.
@@ -25,7 +26,7 @@ class GraphColoringBruteForce : ISolver<GRAPHCOLORING> {
     // edge lookup each). numColors is capped at nodes.Count (see the K > nodes.Count guard in solve()),
     // so worst case is Theta((n+1)^n) -- asymptotically worse than n!, i.e. worse than the existing
     // SolverComplexityBucket.Factorial tier; Exponential is kept only because no stronger bucket exists.
-    public string complexity { get; } = "O((numColors+1)^n * n^2 * m), n = |nodes|, m = |edges|, numColors = min(K, n)";
+    public MathematicalFunction timeComplexity { get; } = new("(numColors+1)^n * n^2 * m", ", n = |nodes|, m = |edges|, numColors = min(K, n)");
 
     // --- Methods Including Constructors ---
     public GraphColoringBruteForce() {
@@ -84,6 +85,7 @@ class GraphColoringBruteForce : ISolver<GRAPHCOLORING> {
         // guaranteed false on the initial all-zero binary (no digit can equal
         // numColors - 1 >= 1 yet), so this restructuring does not change behavior there.
         do {
+            if (timerHasExpired) return SolveRun.TimedOutAnswer; // #935: stop at the time limit
             string certificate = BinaryToCertificate(binary, gColor.nodes, numColors);
             if (gColor.defaultVerifier.verify(gColor, certificate)) {
                 return certificate;

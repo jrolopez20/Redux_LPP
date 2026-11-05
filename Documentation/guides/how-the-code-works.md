@@ -29,7 +29,7 @@ Each of those five things is one C# class that implements one interface. You add
 | [AdditionalControllers/](../../AdditionalControllers/) | The API itself: [ProblemProvider.cs](../../AdditionalControllers/ProblemProvider.cs) (solve, verify, reduce, visualize) and [Navigation/](../../AdditionalControllers/Navigation/) (listing what exists). |
 | [ProblemTemplate/](../../ProblemTemplate/) | The code that generates starter files, plus the template text files in [Templates/](../../ProblemTemplate/Templates/). |
 | [redux-tests/](../../redux-tests/) | All the tests. |
-| [Tools/](../../Tools/) | Helpers that are not about one problem: [Boolean_Parser.cs](../../Tools/Boolean_Parser.cs), the quantum server client ([QUANTUM_API_README.md](../../Tools/QUANTUM_API_README.md) explains it), and `ContributorStatsSync`, a separate small program that GitHub runs to refresh contributor info. |
+| [Tools/](../../Tools/) | Helpers that are not about one problem: the quantum server client ([QUANTUM_API_README.md](../../Tools/QUANTUM_API_README.md) explains it), and `ContributorStatsSync`, a separate small program that GitHub runs to refresh contributor info. |
 | [wwwroot/](../../wwwroot/) | Static files the API serves as-is: the Swagger page's stylesheet and `contributorInfo.json`. |
 | [Documentation/](../../Documentation/) | These guides, [production.md](../production.md) (server operations), and `visualization-types.json` (a list that code and CI read, so do not move or rename it). |
 
@@ -52,11 +52,11 @@ Notes: the class file is `<NAME>_Class.cs`, and reductions live under the proble
 
 ## 3. The five interfaces
 
-All in [Interfaces/](../../Interfaces/). Each has a plain version and a generic version (for example `IProblem` and `IProblem<TSolver, TVerifier, TVisualization>`). You implement the generic one, which saves you from writing the string-parsing boilerplate.
+All in [Interfaces/](../../Interfaces/). Each has a plain version and a generic version (for example `ISolver` and `ISolver<TProblem>`). For solvers, verifiers, visualizations, and reductions you implement the generic one, which saves you from writing the string-parsing boilerplate. A new problem implements plain `IProblem`; older problems implement `IProblem<TSolver, TVerifier, TVisualization>`, which names their defaults.
 
 | Interface | File | What one class does |
 | --- | --- | --- |
-| `IProblem` | [ProblemInterface.cs](../../Interfaces/ProblemInterface.cs) | Describes a problem (name, definition, source, a default example, the instance and certificate formats, declared complexity class) and parses an instance string. Names its default solver, verifier, and visualization. |
+| `IProblem` | [ProblemInterface.cs](../../Interfaces/ProblemInterface.cs) | Describes a problem (name, definition, source, a default example, the instance and certificate formats, declared complexity class) and parses an instance string. Has a default solver, verifier, and visualization. |
 | `ISolver` | [SolverInterface.cs](../../Interfaces/SolverInterface.cs) | Takes a problem and returns a solution as a string. Can optionally return step-by-step progress. |
 | `IVerifier` | [VerifierInterface.cs](../../Interfaces/VerifierInterface.cs) | Takes a problem and a certificate and answers true or false. |
 | `IVisualization` | [VisualizationInterface.cs](../../Interfaces/VisualizationInterface.cs) | Turns a problem (and optionally a solution or steps) into a JSON drawing the website can render. |
@@ -73,7 +73,7 @@ Problem  --defaultSolver-->  Solver
 Solver / Verifier / Visualization are generic over the problem they work on.
 ```
 
-A problem can have many solvers, verifiers, and visualizations, but it must name one of each as its default. If a problem has no visualization, use `DummyVisualization` from [Interfaces/DummyClasses/](../../Interfaces/DummyClasses/). Every interface has "declared metadata" members (such as `complexityClass`, `solverType`, `cost`) that a person fills in. They default to `Unclassified`, and tests fail while they stay that way. The task guides explain each one.
+A problem can have many solvers, verifiers, and visualizations, but one of each is its default. The default class says so with `[DefaultFor(typeof(PROBLEM))]` ([DefaultFor.cs](../../Interfaces/DefaultFor.cs)), so the problem class does not have to name it; older problems on `IProblem<...>` name their defaults instead. A kind with no default uses a placeholder from [Interfaces/DummyClasses/](../../Interfaces/DummyClasses/) (`DummySolver`, `DummyVerifier`, `DummyVisualization`). Every interface has "declared metadata" members (such as `complexityClass`, `solverType`, `cost`) that a person fills in. They default to `Unclassified`, and tests fail while they stay that way. The task guides explain each one.
 
 To add one of these, follow its guide: [adding-a-problem.md](adding-a-problem.md), [adding-a-solver.md](adding-a-solver.md), [adding-a-verifier.md](adding-a-verifier.md), [adding-a-visualization.md](adding-a-visualization.md), [adding-a-reduction.md](adding-a-reduction.md).
 
@@ -128,7 +128,7 @@ A real example, from [ARCSET_Class.cs](../../Problems/NPComplete/NPC_ARCSET/ARCS
   K = int.Parse(arcset["K"].ToString());
   ```
 
-For the full grammar words (`set`, `cross`, `subset`, `int`, and more), read the [SPADE documentation](https://github.com/Jetison333/SPADE/blob/main/Documentation/index.md). SPADE does not cover every input shape, so if your problem's text does not fit, write a small hand parser instead (for example [Tools/Boolean_Parser.cs](../../Tools/Boolean_Parser.cs) for boolean formulas).
+For the full grammar words (`set`, `cross`, `subset`, `int`, and more), read the [SPADE documentation](https://github.com/Jetison333/SPADE/blob/main/Documentation/index.md). SPADE does not cover every input shape, so if your problem's text does not fit, write a small hand parser instead (for example [Interfaces/Logic/CnfParser.cs](../../Interfaces/Logic/CnfParser.cs) for CNF boolean formulas).
 
 Two things to know:
 

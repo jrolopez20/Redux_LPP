@@ -1,4 +1,5 @@
 ﻿using API.Interfaces;
+using API.Interfaces.Steps;
 using API.Interfaces.Graphs.GraphParser;
 using API.Interfaces.Graphs;
 using System.Numerics;
@@ -6,12 +7,13 @@ using System.Diagnostics;
 
 namespace API.Problems.NPComplete.NPC_CLIQUE.Solvers;
 
-class CliqueBruteForce : ISolver<CLIQUE> {
+class CliqueBruteForce : ISolver<CLIQUE, NodeSet> {
 
     // --- Fields ---
     public string solverName { get; } = "Clique Brute Force";
     public string solverDefinition { get; } = "This is a brute force solver for the NP-Complete Clique problem";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Caleb Eardley", "Kaden Marchetti" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Unpruned exhaustive enumeration.
@@ -20,7 +22,7 @@ class CliqueBruteForce : ISolver<CLIQUE> {
     // Declared, not derived. Enumerates all C(n,K) size-K node combinations (worst case
     // Theta(2^n) at K ~ n/2 via nextComb); each candidate costs O(K^2 * m) to verify
     // (CliqueVerifier checks every pair in the K-set against the edge list).
-    public string complexity { get; } = "O(2^n * n^2 * m), n = |nodes|, m = |edges|";
+    public MathematicalFunction timeComplexity { get; } = new("2^n * n^2 * m", ", n = |nodes|, m = |edges|");
 
     // --- Methods Including Constructors ---
     public CliqueBruteForce() {
@@ -53,12 +55,16 @@ class CliqueBruteForce : ISolver<CLIQUE> {
         }
         return combination;
     }
-    public string solve(CLIQUE clique) {
+    public string solve(CLIQUE clique) => Solve(clique, StepRecorder<NodeSet>.Off);
+
+    // Steps: one per candidate set tried, in the order the solver tries them. Recorder state lives only in this call.
+    public string Solve(CLIQUE clique, StepRecorder<NodeSet> rec) {
         // K==0 asks for the empty clique, which is trivially correct. The
         // verifier legitimately rejects "{}" as a malformed/empty certificate
         // for the general case, so that round-trip is skipped here rather than
         // weakening the verifier's guard.
         if (clique.K == 0) {
+            rec.Done(new NodeSet([]), true, "A clique of size 0 is the empty set.");
             return "{}";
         }
         List<int> combination = new List<int>();
@@ -66,14 +72,24 @@ class CliqueBruteForce : ISolver<CLIQUE> {
             combination.Add(i);
         }
         BigInteger reps = factorial(clique.nodes.Count) / (factorial(clique.K) * factorial(clique.nodes.Count - clique.K));
+        int tried = 0;
+        string[] Candidate() => combination.Select(i => clique.nodes[i]).ToArray();
         for (int i = 0; i < reps; i++) {
+            if (timerHasExpired) return SolveRun.TimedOutAnswer; // #935: stop at the time limit
             string certificate = indexListToCertificate(combination, clique.nodes);
+            tried++;
             if (clique.defaultVerifier.verify(clique, certificate)) {
+                rec.Accept(() => new NodeSet(Candidate()), () => $"Try {GraphSubsetFrames.Braces(Candidate())}. Every pair is joined.", Candidate);
+                rec.Done(new NodeSet(Candidate()), true, $"{GraphSubsetFrames.Braces(Candidate())} is a clique, found after {tried} tries.");
                 return certificate;
             }
+            rec.Reject(() => new NodeSet(Candidate()),
+                () => $"Try {GraphSubsetFrames.Braces(Candidate())}: {GraphSubsetFrames.Why(SubsetRule.Clique, clique.nodes, clique.edges, Candidate())}.",
+                Candidate);
             combination = nextComb(combination, clique.nodes.Count);
 
         }
+        rec.Done(new NodeSet([]), false, $"Checked all {tried} candidate sets. None is a clique of size {clique.K}.");
         return "{}";
     }
 

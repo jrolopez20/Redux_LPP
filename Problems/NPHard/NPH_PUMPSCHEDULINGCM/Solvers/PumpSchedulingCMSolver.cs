@@ -16,6 +16,7 @@ class PumpSchedulingCMSolver : ISolver<PUMPSCHEDULINGCM> {
         "total cost of the pump schedule, and schedule is a list of pump schedules (one per pump) where " +
         "each pump schedule is a list of 24 binary values indicating whether that pump is on or off for each hour.";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Michael Trosper" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Memo table + optimal-substructure recurrence.
@@ -25,7 +26,7 @@ class PumpSchedulingCMSolver : ISolver<PUMPSCHEDULINGCM> {
     // polynomial in the hour count H and tank-bucket count B, but the per-hour transition
     // enumerates prevMask x mask over nMasks = 2^n pump-on/off states (n = pump count),
     // i.e. exponential in the number of pumps.
-    public string complexity { get; } = "O(H * B * n * 4^n), H = 24 hours, B = tank buckets, n = number of pumps";
+    public MathematicalFunction timeComplexity { get; } = new("H * B * n * 4^n", ", H = 24 hours, B = tank buckets, n = number of pumps");
 
     // Return a non-empty sentinel so the IVisualization<T> default dispatch in
     // VisualizationInterface.cs does not short-circuit StepsVisualization when
@@ -90,11 +91,12 @@ class PumpSchedulingCMSolver : ISolver<PUMPSCHEDULINGCM> {
         dp[0, initB, 0] = 0.0;
 
         for (int h = 0; h < Hours; h++) {
-            if (timerHasExpired) return string.Empty;
+            if (timerHasExpired) return SolveRun.TimedOutAnswer;
 
             double demand = problem.DemandGph[h];
 
             for (int b = 0; b < stateB; b++) {
+                if (timerHasExpired) return SolveRun.TimedOutAnswer; // #935: an hour can take long with many pumps
                 double levelNow = ToLevel(b);
 
                 for (int prevMask = 0; prevMask < nMasks; prevMask++) {

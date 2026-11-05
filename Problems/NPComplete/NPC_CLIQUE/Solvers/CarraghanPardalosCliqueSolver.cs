@@ -1,4 +1,5 @@
 using API.Interfaces;
+using API.Interfaces.Steps;
 using API.Interfaces.Graphs.GraphParser;
 using API.Interfaces.Graphs;
 using System.Numerics;
@@ -6,7 +7,7 @@ using System.Diagnostics;
 
 namespace API.Problems.NPComplete.NPC_CLIQUE.Solvers;
 
-class CarraghanPardalos : ISolver<CLIQUE> {
+class CarraghanPardalos : ISolver<CLIQUE, NodeSet>, IIncrementalSolver {
 
     // --- Fields ---
     public string solverName { get; } = "Clique Carraghan-Pardalos Branch and Bound";
@@ -17,20 +18,25 @@ class CarraghanPardalos : ISolver<CLIQUE> {
     + " partial clique plus the remaining candidates cannot possibly reach size k, avoiding exploration of"
     + " branches that cannot succeed.";
     public string source { get; } = "Randy Carraghan and Panos M. Pardalos. 1990. An exact algorithm for the maximum clique problem. Oper. Res. Lett. 9, 6 (November, 1990), 375–382. https://doi.org/10.1016/0167-6377(90)90057-C";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } =
         "https://doi.org/10.1016/0167-6377(90)90057-C";
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
     public SolverType solverType { get; } = SolverType.Backtracking;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Exponential;
-    public string complexity { get; } = "O(2^n), n = |nodes|";
+    public MathematicalFunction timeComplexity { get; } = new("2^n", ", n = |nodes|");
 
     // --- Methods Including Constructors ---
     public CarraghanPardalos() {
 
     }
 
-    public string solve(CLIQUE clique) {
+    public string solve(CLIQUE clique) => Solve(clique, StepRecorder<NodeSet>.Off);
+
+    // Steps: add a vertex to the growing clique, skip a vertex the bound rules out, back a vertex out again.
+    // Recorder state lives only in this call.
+    public string Solve(CLIQUE clique, StepRecorder<NodeSet> rec) {
 
         Dictionary<string, HashSet<string>> adj = BuildAdjacency(clique.nodes, clique.edges);
 
@@ -40,9 +46,15 @@ class CarraghanPardalos : ISolver<CLIQUE> {
         HashSet<string> candidates = new HashSet<string>(order);
         List<string> partial = new List<string>();
 
-        HashSet<string>? found = Expand(candidates, partial, clique.K, adj);
+        HashSet<string>? found = Expand(candidates, partial, clique.K, adj, rec);
+        if (timerHasExpired) return SolveRun.TimedOutAnswer;
 
-        return found != null ? "{" + string.Join(",", found) + "}" : "{}";
+        if (found == null) {
+            rec.Done(new NodeSet([]), false, $"No clique of size {clique.K} exists.");
+            return "{}";
+        }
+        rec.Done(new NodeSet(found), true, $"{GraphSubsetFrames.Braces(found)} is a clique of size {clique.K}.");
+        return "{" + string.Join(",", found) + "}";
     }
 
     private Dictionary<string, HashSet<string>> BuildAdjacency(
@@ -59,7 +71,7 @@ class CarraghanPardalos : ISolver<CLIQUE> {
     // Branch-and-bound search: extends 'partial' using vertices from 'candidates', pruning whenever
     // the partial clique plus remaining candidates can no longer reach size k.
     private HashSet<string>? Expand(
-        HashSet<string> candidates, List<string> partial, int k, Dictionary<string, HashSet<string>> adj) {
+        HashSet<string> candidates, List<string> partial, int k, Dictionary<string, HashSet<string>> adj, StepRecorder<NodeSet> rec) {
 
         if (partial.Count == k) {
             return new HashSet<string>(partial);
@@ -70,6 +82,7 @@ class CarraghanPardalos : ISolver<CLIQUE> {
         }
 
         foreach (string v in candidates.ToList()) {
+            if (timerHasExpired) return null; // #935: unwind at the time limit; solve() returns the timed-out answer
 
             HashSet<string> newCandidates = new HashSet<string>(
                 candidates.Where(u => u != v && adj[v].Contains(u))
@@ -77,16 +90,21 @@ class CarraghanPardalos : ISolver<CLIQUE> {
 
             // Bound: skip v if the resulting branch cannot possibly reach size k.
             if (partial.Count + 1 + newCandidates.Count < k) {
+                rec.Reject(() => new NodeSet(partial),
+                    () => $"Skip {v}: with it only {partial.Count + 1 + newCandidates.Count} vertices could ever join, but the clique needs {k}.", v);
                 candidates.Remove(v);
                 continue;
             }
 
             partial.Add(v);
-            HashSet<string>? result = Expand(newCandidates, partial, k, adj);
+            rec.Accept(() => new NodeSet(partial),
+                () => $"Add {v} to the clique. {newCandidates.Count} vertices are joined to every member so far.", v);
+            HashSet<string>? result = Expand(newCandidates, partial, k, adj, rec);
             if (result != null) {
                 return result;
             }
             partial.RemoveAt(partial.Count - 1);
+            rec.Backtrack(() => new NodeSet(partial), () => $"Back out {v}: no clique of size {k} grows from here.", v);
             candidates.Remove(v);
         }
 

@@ -21,6 +21,7 @@ class SPSP : IGraphProblem<SPSPSolver, SPSPVerifier, SPSPVisualization, UtilColl
     public string inputDescription { get; } = "A weighted graph with a source vertex and a target vertex";
     public string outputDescription { get; } = "The shortest path from the source vertex to the target vertex, or empty if unreachable";
     public string source { get; } = "N/A";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "N/A";
     // The single source of truth for which graph shapes SPSP accepts -- also used
     // to generate InstanceGrammar below, so the two can't drift apart. SPADE's
@@ -64,6 +65,7 @@ class SPSP : IGraphProblem<SPSPSolver, SPSPVerifier, SPSPVisualization, UtilColl
     // solvable in polynomial time (Dijkstra's algorithm).
     public ComplexityClass complexityClass { get; } = ComplexityClass.P;
     public ProblemType problemType { get; } = ProblemType.NetworkDesign;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Optimization;
 
     // --- Properties ---
     public List<string> nodes {

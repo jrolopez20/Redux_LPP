@@ -51,12 +51,15 @@ class PUMPSCHEDULINGEM : IProblem<PumpSchedulingEMSolver, PumpSchedulingEMVerifi
     public string inputDescription { get; } = "Tank state and minimum level, hourly water demand, peak-hour tariffs, pump specifications, and budget";
     public string outputDescription { get; } = "The hourly pump activation schedule, its effective budget and cost, maximizing stored water within the budget";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string wikiName { get; } = "";
     public string[] contributors { get; } = { "Michael Trosper" };
     // Declared, not derived. Correctly filed under Problems/NPHard/ already; this
     // makes the folder's claim machine-checkable instead of implicit.
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPHard;
     public ProblemType problemType { get; } = ProblemType.SequencingAndScheduling;
+    // Variant (#616): Judgement call: the budget is a constraint like a knapsack capacity; the objective (stored water) is maximized.
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Optimization;
 
     // 4-section tuple: Tank (capacity, currentLevel, minLevel), Demand config, Pumps, Budget.
     // Budget = 0 means auto-compute as 1.5× the cost-minimization optimum.

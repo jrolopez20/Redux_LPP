@@ -1,3 +1,8 @@
+using API.Problems.NPComplete.NPC_GRAPHCOLORING.ReduceTo.NPC_SAT;
+using API.Problems.NPComplete.NPC_SAT.ReduceTo.NPC_SAT3;
+using API.Problems.NPComplete.NPC_SAT3;
+using API.Interfaces;
+using API.Interfaces.JSON_Objects;
 using Xunit;
 using API.Problems.NPComplete.NPC_SAT;
 using API.Problems.NPComplete.NPC_SAT.Solvers;
@@ -15,7 +20,7 @@ public class SAT_Tests {
     [Fact]
     public void SAT_Default_Instantiation() {
         SAT sat = new SAT();
-        Assert.Equal("(!x3 | x4 | !x2 | x1 | x2) & (!x4 | !x1) & (x4 | x3 | !x1)", sat.defaultInstance);
+        Assert.Equal("(x1 | x2 | x3 | x4) & (!x1 | !x2) & (!x3 | x4) & (!x4 | x2) & (!x2 | !x3)", sat.defaultInstance);
         Assert.Equal(sat.defaultInstance, sat.instance);
     }
 
@@ -96,8 +101,7 @@ public class SAT_Tests {
     }
 
     // -------------------------------------------------------------------------
-    // Solver — single-clause instances (unaffected by the increment bug since
-    // there is only one clause, so increment fires exactly once per combination)
+    // Solver
     // -------------------------------------------------------------------------
 
     [Theory]
@@ -113,30 +117,55 @@ public class SAT_Tests {
         Assert.True(verifier.verify(sat, certificate));
     }
 
-    // -------------------------------------------------------------------------
-    // BUG: increment called inside the clause loop
-    //
-    // SATBruteForceSolver.solve() calls increment(literalDict) once per clause
-    // in the inner foreach, instead of once per outer combination. For a formula
-    // with c clauses and n variables, this means the assignment advances c times
-    // per outer iteration rather than once, causing the solver to evaluate each
-    // clause against a DIFFERENT assignment and return a certificate that was
-    // never actually checked as a whole.
-    //
-    // Example: (x1 | x2) & (!x1 | !x2) & (x1 | !x2)
-    //   Valid solution: {x1=T, x2=F}
-    //   Bug causes solver to return: (x1:True, x2:True)
-    //   (x1:True, x2:True) fails clause 2: (!x1 | !x2) = (F | F) = False
-    //
-    // Fix: move `literalDict = increment(literalDict)` to BEFORE the inner
-    // foreach loop, so the assignment advances once per combination.
-    // -------------------------------------------------------------------------
+    // Regression: the old solver advanced the assignment before checking it, so the
+    // all-false assignment was never tried correctly and these were reported unsatisfiable.
+    [Theory]
+    [InlineData("(!x1)")]
+    [InlineData("(!x1) & (!x2)")]
+    [InlineData("(!a | !b) & (!b | !c) & (!a)")]
+    public void SAT_Solver_Finds_All_False_Assignment(string instance) {
+        string certificate = new SATBruteForceSolver().solve(instance);
+        Assert.NotEqual("No solution exists", certificate);
+        Assert.True(new SATVerifier().verify(new SAT(instance), certificate));
+    }
+
+    [Theory]
+    [InlineData("(x1) & (!x1)")]
+    [InlineData("(a | b) & (!a | b) & (a | !b) & (!a | !b)")]
+    public void SAT_Solver_Reports_Unsatisfiable(string instance) {
+        Assert.Equal("No solution exists", new SATBruteForceSolver().solve(instance));
+    }
+
+    // SAT's default visualization draws the solver's answer. "No solution exists" is what
+    // the solver returns for an unsatisfiable formula, and "" is what Graph Coloring to SAT
+    // maps a coloring to, so visualizeReduction into SAT passes it (#922).
+    [Theory]
+    [InlineData("No solution exists")]
+    [InlineData("")]
+    public void SAT_Default_Visualization_Draws_An_Answer_With_No_Assignments(string solution) {
+        SAT sat = new SAT("(x1) & (!x1)");
+        var solved = (API_SAT)sat.defaultVisualization.SolvedVisualization(sat, solution);
+        Assert.All(solved.clauses.SelectMany(c => c.literals), l => Assert.Equal("Background", l.color));
+    }
+
+    [Fact]
+    public void SAT_Default_Visualization_Highlights_The_Solution() {
+        SAT sat = new SAT("(x1 | x2) & (!x1)");
+        var solved = (API_SAT)sat.defaultVisualization.SolvedVisualization(sat, "(x1:False,x2:True)");
+        var colors = solved.clauses.SelectMany(c => c.literals).ToDictionary(l => l.literal, l => l.color);
+        Assert.Equal("Solution", colors["!x1"]);
+        Assert.Equal("Solution", colors["x2"]);
+        Assert.Equal("Background", colors["x1"]);
+    }
+
+    [Fact]
+    public void SAT_Solver_Malformed_Instance_Throws_ProblemParseException() {
+        Assert.Throws<ProblemParseException>(() => new SATBruteForceSolver().solve("(x1 | x2"));
+    }
 
     [Fact]
     public void SAT_Solver_Certificate_Is_Valid_For_Multi_Clause_Instance() {
         // Satisfiable: {x1=True, x2=False} satisfies all three clauses.
-        // The increment bug causes the solver to return (x1:True, x2:True),
-        // which fails clause 2 (!x1 | !x2) = (F | F) = False.
         string instance = "(x1 | x2) & (!x1 | !x2) & (x1 | !x2)";
         SAT sat = new SAT(instance);
         SATBruteForceSolver solver = new SATBruteForceSolver();
@@ -144,5 +173,41 @@ public class SAT_Tests {
         string certificate = solver.solve(instance);
         Assert.NotEqual("No solution exists", certificate);
         Assert.True(verifier.verify(sat, certificate));
+    }
+
+    // -------------------------------------------------------------------------
+    // Instance parsing (shared CnfParser)
+    // -------------------------------------------------------------------------
+
+    [Theory]
+    [InlineData("(x1 | x2", "expected '|' or ')'")]
+    [InlineData("(x1 | x2) | (x3)", "'|' cannot join")]
+    [InlineData("!(x1 & x2)", "negating a parenthesized expression")]
+    [InlineData("", "instance is empty")]
+    public void SAT_Rejects_Malformed_Instance(string instance, string messageFragment) {
+        var ex = Assert.Throws<ProblemParseException>(() => new SAT(instance));
+        Assert.Equal("SAT", ex.ProblemName);
+        Assert.Contains(messageFragment, ex.Message);
+    }
+
+    [Fact]
+    public void SAT_Accepts_Clauses_Longer_Than_Three() {
+        SAT sat = new SAT("(a | b | c | d | !e) & f");
+        Assert.Equal(new[] { 5, 1 }, sat.clauses.Select(c => c.Count));
+    }
+
+    // The reductions build instance strings by hand; they must stay within the grammar.
+    [Fact]
+    public void SAT_To_SAT3_Output_Instance_Reparses() {
+        var reduction = new KarpSATToSAT3();
+        SAT3 reparsed = new SAT3(reduction.reductionTo.instance);
+        Assert.Equal(reduction.reductionTo.clauses, reparsed.clauses);
+    }
+
+    [Fact]
+    public void GRAPHCOLORING_To_SAT_Output_Instance_Reparses() {
+        var reduction = new KarpReduceSAT();
+        SAT reparsed = new SAT(reduction.reductionTo.instance);
+        Assert.Equal(reduction.reductionTo.clauses, reparsed.clauses);
     }
 }

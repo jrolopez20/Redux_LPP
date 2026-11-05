@@ -26,6 +26,7 @@ class DOMINATINGSET
 
     public string source { get; } =
         "Garey, M. R., & Johnson, D. S. (1979). Computers and Intractability: A Guide to the Theory of NP-Completeness. W. H. Freeman and Company.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } =
         "https://dl.acm.org/doi/10.5555/574848";
     public const string InstanceGrammar =
@@ -54,6 +55,7 @@ class DOMINATINGSET
     // Declared, not derived. DOMINATINGSET is NP-complete (Karp, 1972).
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
     public ProblemType problemType { get; } = ProblemType.GraphTheory;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     public UtilCollectionGraph graph { get; set; }
 

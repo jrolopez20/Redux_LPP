@@ -18,6 +18,7 @@ class WEIGHTEDCUT : IGraphProblem<WeightedCutBruteForce, WeightedCutVerifier, We
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
 
     public string source { get; } = "Karp, Richard M. Reducibility among combinatorial problems. Complexity of computer computations. Springer, Boston, MA, 1972. 85-103.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://cgi.di.uoa.gr/~sgk/teaching/grad/handouts/karp.pdf";
     // Declared, not derived. Same reasoning as CUT (see that class): the verifier
     // requires an EXACT match to K total edge weight over an unrestricted bipartition --
@@ -26,6 +27,7 @@ class WEIGHTEDCUT : IGraphProblem<WeightedCutBruteForce, WeightedCutVerifier, We
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
     public const string InstanceGrammar = "{((N,E),K) | N is set, E subset {(e, w) | e is N unorderedcross N, w is int}, K is int}";
     public ProblemType problemType { get; } = ProblemType.NetworkDesign;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
     public static string _defaultInstance { get; } = "(({1,2,3,4,5},{({2,1},5),({1,3},4),({2,3},2),({3,5},1),({2,4},4),({4,5},2)}),5)";
     public string defaultInstance { get; } = _defaultInstance;
     public string instanceFormat { get; } = $"Format: {InstanceGrammar} Example: {_defaultInstance}";

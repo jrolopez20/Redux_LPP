@@ -17,6 +17,7 @@ class MINIMUMSPANNINGTREE : IGraphProblem<KruskalSolver, MinimumSpanningTreeVeri
     public string inputDescription { get; } = "G, a weighted undirected graph";
     public string outputDescription { get; } = "The set of edges forming a minimum spanning tree";
     public string source { get; } = "Graham, Ronald L., and Pavel Hell. \"On the history of the minimum spanning tree problem.\" Annals of the History of Computing 7, no. 1 (1985): 43-57.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://doi.org/10.1109/MAHC.1985.10011";
     public string wikiName { get; } = "";
     public const string InstanceGrammar = "{(N,E) | N is set, E subset {(e, w) | e is N unorderedcross N, w is int}}";
@@ -32,6 +33,7 @@ class MINIMUMSPANNINGTREE : IGraphProblem<KruskalSolver, MinimumSpanningTreeVeri
     // NPComplete/ folder for filing reasons.
     public ComplexityClass complexityClass { get; } = ComplexityClass.P;
     public ProblemType problemType { get; } = ProblemType.NetworkDesign;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Optimization;
 
     private List<string> _nodes = new List<string>();
     private List<(string source, string destination, int weight)> _edges = new List<(string source, string destination, int weight)>();

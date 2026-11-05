@@ -18,11 +18,12 @@ class GRAPHCOLORING : IGraphProblem<GraphColoringBruteForce, GraphColoringVerifi
     public string outputDescription { get; } = "True or False, whether G has a valid k-coloring";
 
     public string source { get; } = "Karp, Richard M. Reducibility among combinatorial problems. Complexity of computer computations. Springer, Boston, MA, 1972. 85-103.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://cgi.di.uoa.gr/~sgk/teaching/grad/handouts/karp.pdf";
     public string[] contributors { get; } = { "Daniel Igbokwe", "Alex Diviney" };
 
     public const string InstanceGrammar = "{((N,E),K) | N is set, E subset N unorderedcross N, K is int}";
-    private static string _defaultInstance = "(({a,b,c,d,e,f,g,h,i},{{a,b},{b,c},{a,c},{d,a},{d,e},{a,e},{a,f},{f,g},{g,a},{a,h},{h,i},{i,a}}),3)";
+    private static string _defaultInstance = "(({a,b,c,d,e,f},{{a,b},{b,c},{c,a},{a,d},{b,e},{c,f},{d,e},{e,f},{f,d}}),3)";
     public string defaultInstance { get; } = _defaultInstance;
     public string instanceFormat { get; } = $"Format: {InstanceGrammar} Example: {_defaultInstance}";
     public string certificateFormat { get; } =
@@ -50,6 +51,7 @@ class GRAPHCOLORING : IGraphProblem<GraphColoringBruteForce, GraphColoringVerifi
     // Declared, not derived. GRAPHCOLORING is NP-complete (Karp, 1972).
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
     public ProblemType problemType { get; } = ProblemType.GraphTheory;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     #endregion
 

@@ -27,6 +27,7 @@ class LawlerKarp : IReduction<VERTEXCOVER, ARCSET> {
                                             Then add directed edges from every 0 node 'u' to 1 node 'u'. ie. creates edges from <A,0> to <A,1>, <B,0> to <B,1> … <Z,0> to <Z,1>
                                             Now the algorithm has created an ARCSET instance (in other words, a Digraph). ";
     public string source { get; } = "Karp, Richard M. Reducibility among combinatorial problems. Complexity of computer computations. Springer, Boston, MA, 1972. 85-103.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://cgi.di.uoa.gr/~sgk/teaching/grad/handouts/karp.pdf";
     public string[] contributors { get; } = { "Daniel Igbokwe", "Caleb Eardley" };
     // reduce() emits 2 gadget nodes + O(1) gadget edges per input node, and O(1)
@@ -86,7 +87,7 @@ class LawlerKarp : IReduction<VERTEXCOVER, ARCSET> {
             newNode2.name = name + "1";
             newNodes.Add(newNode1);
             newNodes.Add(newNode2);
-            gadgets.Add(new Gadget("ElementHighlight", new List<string>() { name.ToString() }, new List<string>() { name + "0", name + "1" }));
+            gadgets.Add(new Gadget(GadgetKind.Element, new List<string>() { name.ToString() }, new List<string>() { name + "0", name + "1" }));
         }
 
         //Turn undirected edges into paired directed edges.

@@ -10,6 +10,7 @@ class UnstructuredGroverSolver : ISolver<UNSTRUCTUREDSEARCH> {
     public string solverName { get; } = "Grover's Algorithm";
     public string solverDefinition { get; } = "This solver represents f(x) has a boolean circuit and then use Grover's algorithm to locate x such that f(x) = 1.";
     public string source { get; } = "Grover L.K.: A fast quantum mechanical algorithm for database search, Proceedings, 28th Annual ACM Symposium on the Theory of Computing, (May 1996) p. 212.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Jason L. Wright" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Delegates to the external quantum-simulator service.
@@ -17,7 +18,7 @@ class UnstructuredGroverSolver : ISolver<UNSTRUCTUREDSEARCH> {
     // Grover's algorithm finds a marked item among N = 2^n candidates in O(sqrt(N)) oracle
     // queries; this solver reduces to a SAT instance and makes one call to the quantum
     // endpoint that runs that Grover search.
-    public string complexity { get; } = "O(sqrt(2^n)) oracle queries";
+    public MathematicalFunction timeComplexity { get; } = new("sqrt(2^n)", " oracle queries");
 
     // --- Methods Including Constructors ---
     public UnstructuredGroverSolver() {
@@ -50,8 +51,7 @@ class UnstructuredGroverSolver : ISolver<UNSTRUCTUREDSEARCH> {
         }
 
         var satproblem = String.Join(" | ", exprs);
-        var solution = ReverseString(SolveAsSat(problem, satproblem));
-        return Convert.ToInt32(solution, 2).ToString();
+        return SolveAsSat(problem, satproblem, nbits);
     }
 
     public static string ReverseString(string s) {
@@ -67,13 +67,14 @@ class UnstructuredGroverSolver : ISolver<UNSTRUCTUREDSEARCH> {
         }
     }
 
-    private string SolveAsSat(UNSTRUCTUREDSEARCH problem, string problemInstance) {
-        try {
-            var requestBody = new JSON_Sat_Problem(problemInstance);
+    // On any failure of the quantum service, including a response with no `answer_bitstring` (#538) or one that is not
+    // `nbits` binary digits, this throws SolverUnavailableException (HTTP 503 solver_unavailable) rather than an
+    // unhandled error or a made-up answer (#625). The bit string is checked and converted inside Ask, so a malformed one
+    // fails the same way as a missing one. Returns the index of the marked item.
+    private string SolveAsSat(UNSTRUCTUREDSEARCH problem, string problemInstance, int nbits) {
+        var requestBody = new JSON_Sat_Problem(problemInstance);
 
-            // Create the API client
-            var client = new QuantumServerAPI();
-
+        return QuantumServerAPI.Ask(this, problem.problemName, client => {
             // Make the API call to the quantum endpoint
             string response = client.PostAsync("/sat-quantum", requestBody).Result;
 
@@ -81,26 +82,19 @@ class UnstructuredGroverSolver : ISolver<UNSTRUCTUREDSEARCH> {
             using JsonDocument doc = JsonDocument.Parse(response);
             JsonElement root = doc.RootElement;
 
-            if (root.TryGetProperty("qasm", out JsonElement circuitElement)) {
+            if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("qasm", out JsonElement circuitElement)) {
                 problem.circuit = circuitElement.GetString() ?? "";
             }
-            if (root.TryGetProperty("answer_bitstring", out JsonElement answerElement)) {
-                return answerElement.GetString() ?? "No answer found";
+            if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("answer_bitstring", out JsonElement answerElement)
+                && answerElement.ValueKind == JsonValueKind.String) {
+                string bits = answerElement.GetString() ?? "";
+                if (bits.Length == 0 || bits.Length != nbits || bits.Any(c => c != '0' && c != '1'))
+                    throw new InvalidDataException($"its 'answer_bitstring' is not {nbits} binary digits: {response}");
+                return Convert.ToInt32(ReverseString(bits), 2).ToString();
             }
 
-            // The quantum service responded, but its JSON has no `answer_bitstring` field.
-            // Returning the raw response here would let the caller misinterpret it as
-            // bitstring data (solve() reverses it and parses it as a base-2 integer),
-            // producing a confusing FormatException instead of a clear error.
-            throw new InvalidOperationException(
-                $"Quantum service response is missing the expected 'answer_bitstring' field: {response}");
-        } catch (Exception ex) when (ex is not InvalidOperationException) {
-            // Wrap failures from the HTTP call/setup (network errors, timeouts, JSON parse
-            // failures, etc.) in the same descriptive exception type instead of swallowing
-            // them into an error-JSON string that would hit the same missing-field case above.
-            throw new InvalidOperationException(
-                $"Failed to obtain an answer from the quantum service: {ex.Message}", ex);
-        }
+            throw QuantumServerAPI.MissingAnswer("answer_bitstring", response);
+        });
     }
 
 }

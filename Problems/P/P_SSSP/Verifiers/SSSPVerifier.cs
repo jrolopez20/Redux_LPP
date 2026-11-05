@@ -11,9 +11,10 @@ class SSSPVerifier : IVerifier<SSSP> {
     public const string CertificateGrammar = "{(node,path)} | one pair per node in N, path is {q0,...,qn} shortest from s to node, or {} if unreachable";
     public const string CertificateExample = "{(1,{1}),(2,{1,2}),(3,{1,3}),(4,{1,2,4}),(5,{1,3,5})}";
 
-    public string verifierName { get; } = "Default Single Source Shortest Path Problem Verifier";
+    public string verifierName { get; } = "Single Source Shortest Path Problem Optimality Verifier";
     public string verifierDefinition { get; } = "Verifies the solution for the Single Source Shortest Path problem";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Rajit Nilkar" };
     private string _certificate = "";
     public string certificate => _certificate;

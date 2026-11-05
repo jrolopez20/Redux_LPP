@@ -20,6 +20,7 @@ class DEUTSCH : IProblem<DeutschClassicalSolver, DeutschClassicalVerifier, Dummy
     public string source { get; } = "Deutsch, David. 1985. Quantum theory, the Church-Turing principle and the universal quantum computer. Proc. R. Soc. Lond. A40097-117"; // Academic paper proper citation
     public string sourceLink { get; } = "https://royalsocietypublishing.org/doi/10.1098/rspa.1985.0070"; // Link to the academic paper
     public const string InstanceGrammar = "{(i,w) | i is int, w is int}";
+    public string sourceFile { get; } = SourceFile.Path();
     private static readonly string _defaultInstance = "(0,1)";
     public string defaultInstance { get; } = _defaultInstance;
     public string instance { get; set; } = string.Empty;
@@ -36,6 +37,8 @@ class DEUTSCH : IProblem<DeutschClassicalSolver, DeutschClassicalVerifier, Dummy
     // — so it belongs in EQP, not the classical P/NP hierarchy. See ComplexityClass.EQP.
     public ComplexityClass complexityClass { get; } = ComplexityClass.EQP;
     public ProblemType problemType { get; } = ProblemType.Miscellaneous;
+    // Variant (#616): Judgement call: a promise problem whose answer is one of two (constant or balanced).
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     // --- Methods and Constructors ---
     public DEUTSCH() : this(_defaultInstance) {

@@ -10,10 +10,12 @@ class TSPBranchAndBound : ISolver<TSP> {
     public string solverName { get; } = "Traveling Salesperson Branch and Bound";
     public string solverDefinition { get; } = "This is a Branch and Bound solver for the NP-Complete Traveling Salesperson problem";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Corbin Hay" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Exact search WITH pruning/bounding (branch-and-bound) -- distinct from
-    // TSPBruteForce, which does not prune.
+    // TSPBruteForce, which does not prune. Not DepthFirstSearch (#842 suggested it): Enqueue() orders
+    // the frontier by bound per depth in a priority queue, which is best-first, not depth-first.
     public SolverType solverType { get; } = SolverType.Backtracking;
     // Corrected from Exponential: the search tree is the same permutation tree TSPBruteForce
     // enumerates (each node is a distinct partial path with a fixed start node), so without
@@ -22,7 +24,7 @@ class TSPBranchAndBound : ISolver<TSP> {
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Factorial;
     // Declared, not derived. Worst case (bound provides no effective pruning) visits O(n!) search
     // nodes; each node does O(n^2) work (CloneMatrix + ReduceMatrix over the full cost matrix).
-    public string complexity { get; } = "O(n^2 * n!), n = |nodes|";
+    public MathematicalFunction timeComplexity { get; } = new("n^2 * n!", ", n = |nodes|");
 
     private const double INF = double.PositiveInfinity;
     private long pushID = 0;
@@ -63,7 +65,7 @@ class TSPBranchAndBound : ISolver<TSP> {
 
     public string solve(TSP problem) {
         if (timerHasExpired)
-            return "timeout";
+            return SolveRun.TimedOutAnswer;
 
         List<string> nodes = problem.nodes;
         int n = nodes.Count;
@@ -97,7 +99,7 @@ class TSPBranchAndBound : ISolver<TSP> {
 
         while (pq.Count > 0) {
             if (timerHasExpired)
-                return "timeout";
+                return SolveRun.TimedOutAnswer;
             SearchState current = pq.Dequeue();
             if (current.bound >= bestCost) {
                 continue; // Prune
@@ -262,14 +264,12 @@ class TSPBranchAndBound : ISolver<TSP> {
     }
 
     private List<int>? GetInitialBSSF(TSP problem, List<string> nodes) {
-        string greedyCertificate = new TSPGreedy() {
-            timerHasExpired = timerHasExpired
-        }.solve(problem);
+        string greedyCertificate = new TSPGreedy(() => timerHasExpired).solve(problem);
         return CertificateToPath(greedyCertificate, nodes);
     }
 
     private static List<int>? CertificateToPath(string certificate, List<string> nodes) {
-        if (string.IsNullOrWhiteSpace(certificate) || certificate == "{}" || certificate == "timeout")
+        if (string.IsNullOrWhiteSpace(certificate) || certificate == "{}" || certificate == SolveRun.TimedOutAnswer)
             return null;
         // Remove braces and split by commas
         string trimmed = certificate.Trim().TrimStart('{').TrimEnd('}');

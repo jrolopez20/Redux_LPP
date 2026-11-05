@@ -15,6 +15,7 @@ namespace redux_tests;
 // *** These declarations are public correctness claims the API begins serving the moment
 // this merges. Which solvers are Unclassified — on any axis — needs advisor sign-off
 // before merge, same as prior classification passes. ***
+[Trait("Category", "Metadata")]
 public class SolverType_Tests : IClassFixture<AppFactory> {
     private readonly HttpClient _client;
 
@@ -123,10 +124,10 @@ public class SolverType_Tests : IClassFixture<AppFactory> {
         var unexpected = actual.Where(c => !allowlist.Contains(c)).OrderBy(c => c, StringComparer.Ordinal).ToList();
 
         Assert.True(unexpected.Count == 0,
-            $"Solver(s) declared SolverType.Unclassified without being added to the allowlist: " +
-            $"{string.Join(", ", unexpected)}. Either declare a real SolverType (needs advisor " +
-            "sign-off — see the header of this file), or add the class to " +
-            "SolverTypeUnclassifiedAllowlist in SolverType_Tests.cs.");
+            $"Solver(s) still declared SolverType.Unclassified: {string.Join(", ", unexpected)}. " +
+            "If the solver is finished, declare its real SolverType (see Interfaces/SolverType.cs). " +
+            "If the solver is not finished, delete its file: the problem uses a placeholder solver until one is added. " +
+            "If no value fits, ask in your PR.");
     }
 
     [Fact]
@@ -177,10 +178,10 @@ public class SolverType_Tests : IClassFixture<AppFactory> {
         var unexpected = actual.Where(c => !allowlist.Contains(c)).OrderBy(c => c, StringComparer.Ordinal).ToList();
 
         Assert.True(unexpected.Count == 0,
-            $"Solver(s) declared SolverComplexityBucket.Unclassified without being added to the " +
-            $"allowlist: {string.Join(", ", unexpected)}. Either declare a real " +
-            "SolverComplexityBucket (needs advisor sign-off — see the header of this file), or add " +
-            "the class to ComplexityBucketUnclassifiedAllowlist in SolverType_Tests.cs.");
+            $"Solver(s) still declared SolverComplexityBucket.Unclassified: {string.Join(", ", unexpected)}. " +
+            "If the solver is finished, declare its real complexityBucket (see Interfaces/SolverComplexityBucket.cs). " +
+            "If the solver is not finished, delete its file: the problem uses a placeholder solver until one is added. " +
+            "If no value fits, ask in your PR.");
     }
 
     [Fact]
@@ -219,16 +220,58 @@ public class SolverType_Tests : IClassFixture<AppFactory> {
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     [Fact]
+    public void TimeComplexity_IsExposedThroughISolverAsEvaluableFunction() {
+        var solverType = ProblemProvider.Solvers["knapsackdp"];
+        var solver = Assert.IsAssignableFrom<ISolver>(Activator.CreateInstance(solverType));
+
+        var timeComplexity = Assert.IsType<MathematicalFunction>(solver.timeComplexity);
+        Assert.Equal("n * W", timeComplexity.Function);
+        Assert.Equal(24, timeComplexity.Evaluate(("n", 6), ("W", 4)));
+    }
+
+    [Fact]
+    public void TimeComplexity_EvaluatesForEverySolverThatDeclaresIt() {
+        var failures = new List<string>();
+        int checkedCount = 0;
+
+        foreach (var (className, type) in ProblemProvider.Solvers.OrderBy(kv => kv.Key, StringComparer.Ordinal)) {
+            try {
+                if (Activator.CreateInstance(type) is not ISolver solver || solver.timeComplexity is not { } timeComplexity)
+                    continue;
+
+                var variableValues = timeComplexity.VariableNames
+                    .ToDictionary(name => name, _ => 2.0, StringComparer.Ordinal);
+                _ = timeComplexity.Evaluate(variableValues);
+                checkedCount++;
+            } catch (Exception ex) {
+                failures.Add($"{className}: {ex.GetType().Name}: {ex.Message}");
+            }
+        }
+
+        Assert.True(checkedCount > 0, "Found no solver timeComplexity functions to evaluate.");
+        Assert.True(failures.Count == 0,
+            "Solver timeComplexity functions that failed to parse or evaluate:\n" + string.Join("\n", failures));
+    }
+
+    [Fact]
+    public void TimeComplexity_DefaultsToNullWhenSolverDoesNotDeclareIt() {
+        var solverType = ProblemProvider.Solvers["dummysolver"];
+        var solver = Assert.IsAssignableFrom<ISolver>(Activator.CreateInstance(solverType));
+
+        Assert.Null(solver.timeComplexity);
+    }
+
+    [Fact]
     public void NoNewUndeclaredComplexity() {
         var actual = ActualComplexityUndeclared();
         var allowlist = new HashSet<string>(ComplexityUnclassifiedAllowlist, StringComparer.OrdinalIgnoreCase);
         var unexpected = actual.Where(c => !allowlist.Contains(c)).OrderBy(c => c, StringComparer.Ordinal).ToList();
 
         Assert.True(unexpected.Count == 0,
-            $"Solver(s) have an empty complexity string without being added to the allowlist: " +
-            $"{string.Join(", ", unexpected)}. Either declare a confidently-known Big-O string by reading " +
-            "solve() (needs advisor sign-off — see the header of this file), or add the class to " +
-            "ComplexityUnclassifiedAllowlist in SolverType_Tests.cs.");
+            $"Solver(s) with no time complexity: {string.Join(", ", unexpected)}. " +
+            "If the solver is finished, declare timeComplexity by reading solve() (see Interfaces/MathematicalFunction.cs). " +
+            "If the solver is not finished, delete its file: the problem uses a placeholder solver until one is added. " +
+            "If no value fits, ask in your PR.");
     }
 
     [Fact]
@@ -258,11 +301,11 @@ public class SolverType_Tests : IClassFixture<AppFactory> {
 
     [Fact]
     public void CharacterizationReport_DumpsPerSolverMetadata() {
-        var solverTypeByClassName = SolverTypeCatalog.SolverTypeByClassName.Value;
+        var solverTypesByClassName = SolverTypeCatalog.SolverTypesByClassName.Value;
         var complexityBucketByClassName = SolverTypeCatalog.ComplexityBucketByClassName.Value;
         var complexityByClassName = SolverTypeCatalog.ComplexityByClassName.Value;
 
-        var allClassNames = solverTypeByClassName.Keys
+        var allClassNames = solverTypesByClassName.Keys
             .Union(complexityBucketByClassName.Keys, StringComparer.OrdinalIgnoreCase)
             .Union(complexityByClassName.Keys, StringComparer.OrdinalIgnoreCase)
             .OrderBy(n => n, StringComparer.Ordinal)
@@ -273,7 +316,7 @@ public class SolverType_Tests : IClassFixture<AppFactory> {
         _output.WriteLine("");
 
         foreach (var className in allClassNames) {
-            string solverType = solverTypeByClassName.TryGetValue(className, out var st) ? st : "<not instantiated>";
+            string solverType = solverTypesByClassName.TryGetValue(className, out var st) ? string.Join(" | ", st) : "<not instantiated>";
             string complexityBucket = complexityBucketByClassName.TryGetValue(className, out var cb) ? cb : "<not instantiated>";
             string complexity = complexityByClassName.TryGetValue(className, out var c)
                 ? (string.IsNullOrEmpty(c) ? "<empty>" : c)

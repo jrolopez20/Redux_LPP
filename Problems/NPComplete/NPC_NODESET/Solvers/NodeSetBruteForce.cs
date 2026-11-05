@@ -10,6 +10,7 @@ class NodeSetBruteForce : ISolver<NODESET> {
     public string solverName { get; } = "Node Set Brute Force";
     public string solverDefinition { get; } = "This is a brute force solver for the Node Set problem";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Unpruned exhaustive enumeration.
@@ -19,7 +20,7 @@ class NodeSetBruteForce : ISolver<NODESET> {
     // still be Theta(n), so the sum of C(n,i) terms is Theta(2^n) in the worst case); each
     // candidate costs O(K*m) to build the removed-edge set (toEdges) plus O(n^2 * m) to
     // check acyclicity via the reachability fixpoint in isACyclical.
-    public string complexity { get; } = "O(2^n * n^2 * m), n = |nodes|, m = |edges|";
+    public MathematicalFunction timeComplexity { get; } = new("2^n * n^2 * m", ", n = |nodes|, m = |edges|");
 
     public NodeSetBruteForce() {
 
@@ -62,6 +63,7 @@ class NodeSetBruteForce : ISolver<NODESET> {
             }
             long reps = factorial(nodeSet.nodes.Count) / (factorial(i + 1) * factorial(nodeSet.nodes.Count - i - 1));
             for (int k = 0; k < reps; k++) {
+                if (timerHasExpired) return SolveRun.TimedOutAnswer; // #935: stop at the time limit
                 string certificate = indexListToCertificate(combination, nodeSet.nodes);
                 if (nodeSet.defaultVerifier.verify(nodeSet, certificate)) {
                     return certificate;

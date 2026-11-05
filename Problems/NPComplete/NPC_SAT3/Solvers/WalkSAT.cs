@@ -19,12 +19,15 @@ class WalkSAT : ISolver<SAT3> {
  + " the literal with the minimum break-count is flipped.";
 
     public string source { get; } = "Bart Selman, Henry A. Kautz, and Bram Cohen. 1994. Noise strategies for improving local search. In AAAI '94.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://cdn.aaai.org/AAAI/1994/AAAI94-051.pdf";
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
-    public SolverType solverType { get; } = SolverType.Stochastic;
+    // Declared, not derived. Randomized local search: random choices make it Stochastic, and it has no
+    // worst-case guarantee of finding an assignment within its tries, which makes it a Heuristic (#842).
+    public SolverType solverType { get; } = SolverType.Heuristic | SolverType.Stochastic;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Polynomial;
-    public string complexity { get; } = "O(n * m), n = number of variables, m = number of clauses";
+    public MathematicalFunction timeComplexity { get; } = new("n * m", ", n = number of variables, m = number of clauses");
     // betweeen 0.5 and 0.6, empirically 0.57 proven best
     private readonly double _p = 0.57;
     private readonly int _maxTries = 100;
@@ -51,6 +54,7 @@ class WalkSAT : ISolver<SAT3> {
             }
 
             for (int flip = 0; flip < maxFlips; flip++) {
+                if (timerHasExpired) return SolveRun.TimedOutAnswer; // #935: stop at the time limit
                 // Identify unsatisfied clauses
                 List<List<string>> unsatisfiedClauses = new List<List<string>>();
                 foreach (List<string> clause in sat3.clauses) {

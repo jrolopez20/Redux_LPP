@@ -8,6 +8,7 @@ class ExactCoverRecursive : ISolver<EXACTCOVER> {
     public string solverName { get; } = "Exact Cover Recursive";
     public string solverDefinition { get; } = "This is a optimized recursive solver for Exact Cover";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Russell Phillips" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Exact recursive search WITH pruning -- distinct from ExactCoverBruteForce,
@@ -24,7 +25,7 @@ class ExactCoverRecursive : ISolver<EXACTCOVER> {
     // Per node: building possibleSubsets scans up to s remaining subsets, each checked via
     // shareElememnts against up to s chosen subsets, O(n^2) per pairwise check (n = |X|, bounding
     // subset size) -- O(s^2 * n^2) per node. Combined with the O(s!) node count above.
-    public string complexity { get; } = "O(s! * s^2 * n^2), s = |S| (candidate subsets), n = |X| (bounds subset-comparison cost)";
+    public MathematicalFunction timeComplexity { get; } = new("s! * s^2 * n^2", ", s = |S| (candidate subsets), n = |X| (bounds subset-comparison cost)");
 
     // --- Methods Including Constructors ---
     public ExactCoverRecursive() {
@@ -85,10 +86,15 @@ class ExactCoverRecursive : ISolver<EXACTCOVER> {
         List<string> uSet = new List<string>(exactCover.X);
         List<List<string>> subsets = new List<List<string>>(exactCover.S);
         List<List<string>> choosenSubsets = new List<List<string>>();
-        return subsetsToCertificate(solve_r(exactCover, uSet, subsets, choosenSubsets));
+        List<List<string>> solution = solve_r(exactCover, uSet, subsets, choosenSubsets);
+        if (timerHasExpired) return SolveRun.TimedOutAnswer;
+        return subsetsToCertificate(solution);
     }
 
     public List<List<string>> solve_r(EXACTCOVER exactCover, List<string> uSet, List<List<string>> subsetList, List<List<string>> choosenSubsets) {
+        // #935: unwind at the time limit; solve() then returns the timed-out answer.
+        if (timerHasExpired)
+            return new List<List<string>>();
         //check if choosen subsets is a solution, if it is, return it
         if (exactCover.defaultVerifier.verify(exactCover, subsetsToCertificate(choosenSubsets)))
             return choosenSubsets;

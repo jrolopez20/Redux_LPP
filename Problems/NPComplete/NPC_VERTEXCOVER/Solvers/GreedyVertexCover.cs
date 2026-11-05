@@ -1,11 +1,13 @@
 using API.Interfaces;
+using API.Interfaces.Graphs;
+using API.Interfaces.Steps;
 using System.Linq;
 using API.Problems.NPHard.NPH_MINIMUMVERTEXCOVER;
 using API.Problems.NPHard.NPH_MINIMUMVERTEXCOVER.Solvers;
 
 namespace API.Problems.NPComplete.NPC_VERTEXCOVER.Solvers;
 
-class GreedyVertexCover : ISolver<VERTEXCOVER> {
+class GreedyVertexCover : ISolver<VERTEXCOVER, NodeSet>, IIncrementalSolver {
 
     // --- Fields ---
     public string solverName { get; } = "Vertex Cover Max-Degree Greedy";
@@ -17,30 +19,33 @@ class GreedyVertexCover : ISolver<VERTEXCOVER> {
 + " selected nodes; does not use k, and unlike the maximal-matching approximation, offers no constant-"
 + " factor guarantee — its approximation ratio can be as bad as Theta(log n).";
     public string source { get; } = "David S. Johnson. 1974. Approximation algorithms for combinatorial problems. J. Comput. Syst. Sci. 9, 3 (December, 1974), 256–278. https://doi.org/10.1016/S0022-0000(74)80044-9";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://dl.acm.org/doi/pdf/10.1145/800125.804034";
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
     public SolverType solverType { get; } = SolverType.Greedy;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Polynomial;
-    public string complexity { get; } = "O(n * (n + m)), n = |nodes|, m = |edges|";
+    public MathematicalFunction timeComplexity { get; } = new("n * (n + m)", ", n = |nodes|, m = |edges|");
 
     // --- Methods Including Constructors ---
     public GreedyVertexCover() {
 
     }
-    public string solve(VERTEXCOVER G) {
-        var mvc = new MINIMUMVERTEXCOVER();
-        mvc.nodes = new List<string>(G.nodes);
-        mvc.edges = new List<KeyValuePair<string, string>>(G.edges);
+    public string solve(VERTEXCOVER G) => Solve(G, StepRecorder<NodeSet>.Off);
 
-        string certificate = new GreedyMinimumVertexCover().solve(mvc);
+    // Steps: the greedy picks (as in the Minimum Vertex Cover solver this wraps), then whether the cover fits in K.
+    public string Solve(VERTEXCOVER G, StepRecorder<NodeSet> rec) {
+        // #935: the inner solver's own flag is never set by the timer, so it watches this one's.
+        var cover = new GreedyMinimumVertexCover { stop = () => timerHasExpired }.Cover(G.edges, rec);
+        if (timerHasExpired) return SolveRun.TimedOutAnswer;
 
-        int size = certificate == "{}" ? 0 : certificate.Trim('{', '}').Split(',').Length;
-
-        if (size > G.K) {
+        if (cover.Count > G.K) {
+            rec.Done(new NodeSet([]), false,
+                $"Greedy's cover uses {cover.Count} nodes, more than K = {G.K}. Greedy doesn't always find the smallest cover.");
             return "{}";
         }
 
-        return certificate;
+        rec.Done(new NodeSet(cover), true, $"Every edge is covered with {cover.Count} nodes, within K = {G.K}.");
+        return "{" + string.Join(",", cover) + "}";
     }
 }

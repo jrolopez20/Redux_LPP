@@ -11,9 +11,10 @@ class TopologicalSortVerifier : IVerifier<TOPOLOGICALSORT> {
     public const string CertificateExample = "(1,2,3,4,5,6)";
 
     // --- Fields ---
-    public string verifierName { get; } = "Default Topological Sort Verifier";
+    public string verifierName { get; } = "Topological Sort Solution Verifier";
     public string verifierDefinition { get; } = "Given a proposed ordering of vertices, the verifier checks that (1) every vertex in the graph appears exactly once in the ordering, and (2) for every directed edge (u,v) in the graph, u appears before v in the ordering.";
     public string source { get; } = "Kahn, A. B. (1962). Topological sorting of large networks. Communications of the ACM, 5(11), 558-562.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://dl.acm.org/doi/10.1145/368996.369025";
     public string[] contributors { get; } = { "Pravesh Aryal", "Koras Koirala", "Dinesh Khanal" };
     private string _certificate = "";

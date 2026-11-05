@@ -18,6 +18,7 @@ class NFA : IGraphProblem<NFASolver, NFAVerifier, NFAVisualization, WeightedDire
     public string inputDescription { get; } = "A nondeterministic finite automaton and an input string";
     public string outputDescription { get; } = "True or False, whether the automaton accepts the input string";
     public string source { get; } = "N/A";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "N/A";
 
     // Follows Formal Definition of NFA (Q, Σ, δ, q₀, F) With Input String //
@@ -44,6 +45,7 @@ class NFA : IGraphProblem<NFASolver, NFAVerifier, NFAVisualization, WeightedDire
     // doesn't require that conversion.
     public ComplexityClass complexityClass { get; } = ComplexityClass.P;
     public ProblemType problemType { get; } = ProblemType.AutomataAndLanguages;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     // Edge Structures //
     public record NFAEdge(string From, char Symbol, string To);

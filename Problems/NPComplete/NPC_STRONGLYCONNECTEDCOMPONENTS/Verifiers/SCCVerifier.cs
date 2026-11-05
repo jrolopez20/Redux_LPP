@@ -9,13 +9,14 @@ class SCCVerifier : IVerifier<STRONGLYCONNECTEDCOMPONENTS> {
     public const string CertificateGrammar = "{c1,...,cM} | one set per strongly connected component, order does not matter";
     public const string CertificateExample = "{{1,2,3},{4,5}}";
 
-    public string verifierName { get; } = "Default Strongly Connected Components Verifier";
+    public string verifierName { get; } = "Strongly Connected Components Solution Verifier";
 
     public string verifierDefinition { get; } =
         "Verifies an SCC certificate by comparing components as unordered sets, since SCC ordering is not unique.";
 
     public string source { get; } =
         "Swati Dhingra, Poorvi S. Dodwad, and Meghna Madan, \"Finding Strongly Connected Components in a Social Network Graph,\" International Journal of Computer Applications, Volume 136, No. 7, February 2016.";
+    public string sourceFile { get; } = SourceFile.Path();
 
     public string sourceLink { get; } =
         "https://ijcaonline.org/research/volume136/number7/dhingra-2016-ijca-908481.pdf";

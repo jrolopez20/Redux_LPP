@@ -12,12 +12,13 @@ class ArcSetVerifier : IVerifier<ARCSET> {
                                             ie. Does this input graph no longer have cycles after these input edges are removed? Returns true or false ";
 
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
 
     private string _certificate = "{(2,4)}"; //The certificate should be in the form of a set of directed edges
     public string[] contributors { get; } = { "Alex Diviney", "Caleb Eardley", "Russell Phillips" };
 
     // --- Properties ---
-    public string verifierName { get; } = "Default Feedback Arc Set Verifier";
+    public string verifierName { get; } = "Feedback Arc Set Solution Verifier";
     public string certificate {
         get {
             return _certificate;

@@ -1,11 +1,13 @@
 using API.Interfaces;
+using API.Interfaces.Graphs;
+using API.Interfaces.Steps;
 using System.Linq;
 using API.Problems.NPHard.NPH_MINIMUMVERTEXCOVER;
 using API.Problems.NPHard.NPH_MINIMUMVERTEXCOVER.Solvers;
 
 namespace API.Problems.NPComplete.NPC_VERTEXCOVER.Solvers;
 
-class TwoApproximationVertexCover : ISolver<VERTEXCOVER> {
+class TwoApproximationVertexCover : ISolver<VERTEXCOVER, NodeSet>, IIncrementalSolver {
 
     // --- Fields ---
     public string solverName { get; } = "Vertex Cover Approximation";
@@ -15,33 +17,43 @@ class TwoApproximationVertexCover : ISolver<VERTEXCOVER> {
     + " removes all edges incident to either endpoint, until no edges remain. It returns a cover of size at"
     + " most 2n when the optimal solution is n.";
     public string source { get; } = "Cormen, Thomas H.; Leiserson, Charles E.; Rivest, Ronald L.; Stein, Clifford (2001) [1990]. 'Section 35.1: The vertex-cover problem'. Introduction to Algorithms (2nd ed.). MIT Press and McGraw-Hill. pp. 1024–1027. ISBN 0-262-03293-7.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } =
         "https://www.cs.mcgill.ca/~akroit/math/compsci/Cormen%20Introduction%20to%20Algorithms.pdf";
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public bool timerHasExpired { get; set; }
     public SolverType solverType { get; } = SolverType.Approximation;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Polynomial;
-    public string complexity { get; } = "O(E), E = |edges|";
+    public MathematicalFunction timeComplexity { get; } = new("E", ", E = |edges|");
 
     // --- Methods Including Constructors ---
+    // See TwoApproximationMinimumVertexCover: a seed makes the random edge choices reproducible.
+    private readonly int? _seed;
+
     public TwoApproximationVertexCover() {
 
     }
 
-    public string solve(VERTEXCOVER G) {
-        var mvc = new MINIMUMVERTEXCOVER();
-        mvc.nodes = new List<string>(G.nodes);
-        mvc.edges = new List<KeyValuePair<string, string>>(G.edges);
+    public TwoApproximationVertexCover(int seed) {
+        _seed = seed;
+    }
 
-        string certificate = new TwoApproximationMinimumVertexCover().solve(mvc);
+    public string solve(VERTEXCOVER G) => Solve(G, StepRecorder<NodeSet>.Off);
 
-        int size = certificate == "{}" ? 0 : certificate.Trim('{', '}').Split(',').Length;
+    // Steps: the edges picked (as in the Minimum Vertex Cover solver this wraps), then whether the cover fits in K.
+    public string Solve(VERTEXCOVER G, StepRecorder<NodeSet> rec) {
+        // #935: the inner solver watches this solver's flag, which only the time limit sets.
+        var approx = new TwoApproximationMinimumVertexCover(_seed, () => timerHasExpired);
+        var cover = approx.Cover(G.edges, rec);
+        if (timerHasExpired) return SolveRun.TimedOutAnswer;
 
-        if (size > G.K) {
+        if (cover.Count > G.K) {
+            rec.Done(new NodeSet([]), false, $"This cover uses {cover.Count} nodes, more than K = {G.K}.");
             return "{}";
         }
 
-        return certificate;
+        rec.Done(new NodeSet(cover), true, $"Every edge is covered with {cover.Count} nodes, within K = {G.K}.");
+        return "{" + string.Join(",", cover) + "}";
     }
 
 }

@@ -7,6 +7,7 @@ class SatDefaultVisualization : IVisualization<SAT, API_SAT> {
     public string visualizationName { get; } = "SAT Visualization";
     public string visualizationDefinition { get; } = "This is a default visualization for SAT";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Andrija Sevaljevic" };
     public VisualizationType visualizationType { get; } = VisualizationType.BooleanSatisfiability;
     public ISolver solver { get; } = new SATBruteForceSolver();
@@ -24,6 +25,9 @@ class SatDefaultVisualization : IVisualization<SAT, API_SAT> {
         HashSet<string> highlight = new();
         foreach (string item in items) {
             List<string> split = item.Split(":").ToList();
+            // "No solution exists" (an unsatisfiable formula) has no assignments to highlight.
+            if (split.Count != 2)
+                continue;
             if (split[1] == "True")
                 highlight.Add(split[0]);
             else

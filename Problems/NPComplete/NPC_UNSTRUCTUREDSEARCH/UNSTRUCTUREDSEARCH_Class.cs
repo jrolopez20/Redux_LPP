@@ -17,6 +17,7 @@ class UNSTRUCTUREDSEARCH : IProblem<UnstructuredSearchSolver, UnstructuredSearch
     public string inputDescription { get; } = "f, an oracle function given as its list of output bits";
     public string outputDescription { get; } = "An index x such that f(x) = 1, or no solution if none exists";
     public string source { get; } = "Grover, L. K. (1996). A fast quantum mechanical algorithm for database search. In Proceedings of the twenty-eighth annual ACM symposium on Theory of computing (pp. 212-219).";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://dl.acm.org/doi/pdf/10.1145/237814.237866";
     public const string InstanceGrammar = "{y | y is list}";
     private static readonly string _defaultInstance = "(0, 1, 0, 0)";
@@ -37,6 +38,8 @@ class UNSTRUCTUREDSEARCH : IProblem<UnstructuredSearchSolver, UnstructuredSearch
     // input instead of an oracle it is trivially in P. See ComplexityClass.BQP.
     public ComplexityClass complexityClass { get; } = ComplexityClass.BQP;
     public ProblemType problemType { get; } = ProblemType.Miscellaneous;
+    // Variant (#616): Judgement call: "is there a marked item", answered with a witness; nothing to optimize.
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     private string _circuit = "";
 

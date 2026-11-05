@@ -8,6 +8,7 @@ class SudokuSolver : ISolver<SUDOKU> {
     public string solverName { get; } = "Sudoku Backtracking";
     public string solverDefinition { get; } = "This solver uses backtracking and heuristic search to solve Sudoku problems.";
     public string source { get; } = "Bhattarai, Apekshya, Dinisha Uprety, Pooja Pathak, Safal Shrestha, Salina Narkarmi, and Sanjog Sigdel. 2025. “A Study of Sudoku Solving Algorithms: Backtracking and Heuristic.” Department of Computer Science, Kathmandu University.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Eric Hill", "Carter Luker", "Collin M Kress", "Danny Fawson" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Does real (if minor) pruning, but tagged BruteForce per its class name
@@ -18,7 +19,7 @@ class SudokuSolver : ISolver<SUDOKU> {
     // Declared, not derived. Recursive cell-by-cell backtracking over an n x n grid
     // (n^2 cells, up to n candidate values per cell after row/col/block pruning); the
     // row/col/block HashSets cut branches in practice but don't change the worst-case bound.
-    public string complexity { get; } = "O(n ^ (n^2)), n = grid dimension";
+    public MathematicalFunction timeComplexity { get; } = new("n ^ (n^2)", ", n = grid dimension");
 
     // --- Methods Including Constructors ---
     public SudokuSolver() { }
@@ -42,9 +43,6 @@ class SudokuSolver : ISolver<SUDOKU> {
     }*/
 
     public string solve(SUDOKU problem) {
-        //if (timerHasExpired)
-        //    return "timeout";
-
         // The grid is the solver's only input; all dimensions are derived from it.
         return SolveInternal(problem.grid);
     }
@@ -153,6 +151,9 @@ class SudokuSolver : ISolver<SUDOKU> {
     private bool SolveHelper(int[][] grid, HashSet<int>[] rows, HashSet<int>[] cols, HashSet<int>[] blocks,
                               int row, int col, bool getAllSolutions, List<int[][]> solutions) {
         int gridSize = grid.Length;
+        // #935: at the time limit, unwind as if solved; SolveInternal then reports the stop.
+        if (timerHasExpired)
+            return true;
         // Base case: all rows processed
         if (row == gridSize) {
             if (getAllSolutions) {
@@ -191,6 +192,11 @@ class SudokuSolver : ISolver<SUDOKU> {
 
     public string SolveInternal(int[][] problem) {
         int gridSize = problem.Length;
+
+        // The no-solution value is "{}" (the repo-wide convention, see #605).
+        if (!CluesAreValid(problem))
+            return NoSolution;
+
         int[][] solution = CopyGrid(problem);
 
         var rows = new HashSet<int>[gridSize];
@@ -216,11 +222,13 @@ class SudokuSolver : ISolver<SUDOKU> {
         }
 
         SolveHelper(solution, rows, cols, blocks, 0, 0, false, new List<int[][]>());
+        if (timerHasExpired)
+            return SolveRun.TimedOutAnswer;
 
         // If solution contains any 0s, the problem is unsolveable
         for (int r = 0; r < solution.Length; r++) {
             for (int c = 0; c < solution.Length; c++) {
-                if (solution[r][c] == 0) return "";
+                if (solution[r][c] == 0) return NoSolution;
             }
         }
 
@@ -233,6 +241,33 @@ class SudokuSolver : ISolver<SUDOKU> {
     }
 
     // --- Helpers ---
+
+    private const string NoSolution = "{}";
+
+    // True when the grid is square, every value is in 0..n, and no non-zero clue repeats within a
+    // row, column or block. A grid that fails this has no solution, so there is nothing to search.
+    private static bool CluesAreValid(int[][] grid) {
+        int n = grid.Length;
+        int blockSize = (int)Math.Sqrt(n);
+        if (n == 0 || blockSize * blockSize != n) return false;
+
+        var rowSeen = new bool[n, n + 1];
+        var colSeen = new bool[n, n + 1];
+        var blockSeen = new bool[n, n + 1];
+
+        for (int r = 0; r < n; r++) {
+            if (grid[r].Length != n) return false;
+            for (int c = 0; c < n; c++) {
+                int v = grid[r][c];
+                if (v < 0 || v > n) return false;
+                if (v == 0) continue;
+                int b = r / blockSize * blockSize + c / blockSize;
+                if (rowSeen[r, v] || colSeen[c, v] || blockSeen[b, v]) return false;
+                rowSeen[r, v] = colSeen[c, v] = blockSeen[b, v] = true;
+            }
+        }
+        return true;
+    }
 
     // Returns a new HashSet containing the intersection of three sets, without mutating any of them.
     private static HashSet<int> Intersect(HashSet<int> a, HashSet<int> b, HashSet<int> c) {

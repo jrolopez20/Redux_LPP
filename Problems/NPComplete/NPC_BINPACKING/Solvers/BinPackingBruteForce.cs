@@ -25,6 +25,7 @@ class BinPackingBruteForce : ISolver<BINPACKING> {
     public string solverDefinition { get; } = "Exhaustive backtracking solver for the Bin Packing decision problem. For each item in the input order, the solver attempts to place the item into each of the K candidate bins; branches that would exceed capacity C are pruned, and symmetric placements into equivalent empty bins are skipped. The first complete assignment that respects capacity and the bin-count limit is returned as the certificate; if no such assignment exists the solver returns the empty string.";
 
     public string source { get; } = "Garey, M. R., and Johnson, D. S. Computers and Intractability: A Guide to the Theory of NP-Completeness. W. H. Freeman, 1979. Problem SR1.";
+    public string sourceFile { get; } = SourceFile.Path();
 
     public string[] contributors { get; } = { "Himanshu Jha", "Rakesh Itani", "Prashant Aguragai", "Michael Trosper" };
 
@@ -36,7 +37,7 @@ class BinPackingBruteForce : ISolver<BINPACKING> {
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Exponential;
 
     // Worst-case complexity — each of the n items can go into any of K bins.
-    public string complexity { get; } = "O(K^n)";
+    public MathematicalFunction timeComplexity { get; } = new("K^n", "");
 
     // ── Public entry point ────────────────────────────────────────────────────
 
@@ -65,6 +66,7 @@ class BinPackingBruteForce : ISolver<BINPACKING> {
 
         // Run the backtracking search starting from the first item.
         if (!Place(0, items, binSums, binContents, C, K)) return "";
+        if (timerHasExpired) return SolveRun.TimedOutAnswer;
         return FormatCertificate(binContents);
     }
 
@@ -73,6 +75,9 @@ class BinPackingBruteForce : ISolver<BINPACKING> {
     // Tries to place items[i] into one of the K bins, then recurses on items[i+1].
     // Returns true as soon as a complete valid assignment is found.
     private bool Place(int i, List<int> items, int[] binSums, List<int>[] binContents, int C, int K) {
+
+        // #935: at the time limit, unwind as if done; solve() then returns the timed-out answer.
+        if (timerHasExpired) return true;
 
         // Base case: all items have been placed successfully.
         if (i == items.Count) return true;

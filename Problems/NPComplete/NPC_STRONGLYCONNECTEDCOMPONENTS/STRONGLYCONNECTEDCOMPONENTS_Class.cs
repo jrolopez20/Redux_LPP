@@ -26,6 +26,7 @@ class STRONGLYCONNECTEDCOMPONENTS
 
     public string source { get; } =
         "Swati Dhingra, Poorvi S. Dodwad, and Meghna Madan, \"Finding Strongly Connected Components in a Social Network Graph,\" International Journal of Computer Applications, Volume 136, No. 7, February 2016.";
+    public string sourceFile { get; } = SourceFile.Path();
 
     public string sourceLink { get; } =
         "https://ijcaonline.org/research/volume136/number7/dhingra-2016-ijca-908481.pdf";
@@ -56,6 +57,8 @@ class STRONGLYCONNECTEDCOMPONENTS
     // for filing reasons.
     public ComplexityClass complexityClass { get; } = ComplexityClass.P;
     public ProblemType problemType { get; } = ProblemType.GraphTheory;
+    // Variant (#616): Judgement call: the partition is unique ("maximal" is structural, not an objective).
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
 
     public KosarajuSolver defaultSolver { get; } = new KosarajuSolver();
 

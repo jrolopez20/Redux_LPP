@@ -7,9 +7,10 @@ class SudokuVerifier : IVerifier<SUDOKU> {
     public const string CertificateExample = "6,4,8,1,9,5,2,7,3;3,2,1,7,4,8,5,9,6;9,7,5,3,2,6,4,8,1;5,9,2,6,7,1,8,3,4;8,6,7,4,3,2,1,5,9;1,3,4,8,5,9,6,2,7;2,1,9,5,6,3,7,4,8;7,5,6,9,8,4,3,1,2;4,8,3,2,1,7,9,6,5";
 
     // --- Fields ---
-    public string verifierName { get; } = "Default Sudoku Verifier";
+    public string verifierName { get; } = "Sudoku Solution Verifier";
     public string verifierDefinition { get; } = "This is a verifier for Sudoku. It takes the certificate from the user and validates that it follows the rules of Sudoku and matches the initial clues from the problem instance.";
     public string source { get; } = "Bhattarai, Apekshya, Dinisha Uprety, Pooja Pathak, Safal Shrestha, Salina Narkarmi, and Sanjog Sigdel. 2025. “A Study of Sudoku Solving Algorithms: Backtracking and Heuristic.” Department of Computer Science, Kathmandu University.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Eric Hill", "Carter Luker", "Collin M Kress", "Danny Fawson" };
     private readonly string _certificate = "";
 
@@ -31,8 +32,8 @@ class SudokuVerifier : IVerifier<SUDOKU> {
         // // All we need to do is see if funcValues[certificate] is non-zero
         // return problem.funcValues[i] != 0;
 
-        GRID_SIZE = problem.grid.Length;
-        BLOCK_SIZE = (int)Math.Sqrt(GRID_SIZE);
+        GRID_SIZE = SUDOKU.Size;
+        BLOCK_SIZE = 3;
 
         // Uses the helper function to determine if the certificate is a valid solution
         bool isValid = VerifyHelper(problem, certificate);
@@ -45,7 +46,12 @@ class SudokuVerifier : IVerifier<SUDOKU> {
     public bool VerifyHelper(SUDOKU problem, string certificate) {
         // Parses the problem instance and the certificate into 2D arrays
         int[][] problemGrid = ParseSudokuInput(problem.instance);
-        int[][] certificateGrid = ParseSudokuInput(certificate);
+        int[][]? certificateGrid = TryParseCertificate(certificate);
+
+        // A certificate that is not a 9x9 grid of integers cannot be a solution.
+        if (certificateGrid == null) {
+            return false;
+        }
 
         // Checks each cell to ensure it follows Sudoku rules and matches the initial clues from the problem instance
         for (int i = 0; i < problemGrid.Length; i++) {
@@ -90,6 +96,21 @@ class SudokuVerifier : IVerifier<SUDOKU> {
 
         // If all cells are valid, the certificate is a valid solution
         return true;
+    }
+
+    // Returns null (rather than throwing) when the certificate is not exactly 9 rows of 9 integers.
+    private static int[][]? TryParseCertificate(string certificate) {
+        try {
+            int[][] parsed = ParseSudokuInput(certificate ?? string.Empty);
+            if (parsed.Length != SUDOKU.Size || parsed.Any(row => row.Length != SUDOKU.Size)) {
+                return null;
+            }
+            return parsed;
+        } catch (FormatException) {
+            return null;
+        } catch (OverflowException) {
+            return null;
+        }
     }
 
     private static int[][] ParseSudokuInput(string input) {

@@ -10,6 +10,7 @@ class KnapsackBruteForce : ISolver<KNAPSACK> {
     public string solverName { get; } = "Knapsack Brute Force";
     public string solverDefinition { get; } = "This a brute force solver for the 0-1 Knapsack problem";
     public string source { get; } = "";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Russell Phillips" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Unpruned exhaustive enumeration (own complexity string above already says "O(2^n)").
@@ -17,7 +18,7 @@ class KnapsackBruteForce : ISolver<KNAPSACK> {
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Exponential;
 
 
-    public string complexity { get; } = "O(2^n)";
+    public MathematicalFunction timeComplexity { get; } = new("2^n", "");
 
     public IEnumerable<List<int>> possibleSolutions(int len) {
         for (int i = 0; i < Math.Pow(2, len); i++) {
@@ -36,6 +37,7 @@ class KnapsackBruteForce : ISolver<KNAPSACK> {
     public string solve(KNAPSACK knapsack) {
         List<UtilCollection> items = knapsack.items.ToList();
         foreach (List<int> possibleSolution in possibleSolutions(items.Count())) {
+            if (timerHasExpired) return SolveRun.TimedOutAnswer; // #935: stop at the time limit
             UtilCollection certificate = new UtilCollection("{}");
             for (int i = 0; i < knapsack.items.Count(); i++) {
                 if (possibleSolution[i] == 1) certificate.Add(items[i]);

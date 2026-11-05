@@ -9,14 +9,16 @@ class NQueensBacktracking : ISolver<NQUEENS> {
     public string solverDefinition { get; } =
         "Places queens row by row using backtracking and returns a valid placement if one exists.";
     public string source { get; } = "Classic backtracking approach for the N-Queens problem.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Cole Campbell", "Luis Hernandez", "Ethan Wilks" };
     public bool timerHasExpired { get; set; }
     // Declared, not derived. Exact backtracking search WITH pruning over permutation-style placements
-    // -- factorial worst case (own complexity string above already says "O(N!)").
-    public SolverType solverType { get; } = SolverType.Backtracking;
+    // -- factorial worst case (own complexity string above already says "O(N!)"). Also
+    // DepthFirstSearch: backtrack() places row by row, recursing before trying the next column (#842).
+    public SolverType solverType { get; } = SolverType.Backtracking | SolverType.DepthFirstSearch;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Factorial;
 
-    public string complexity { get; } = "O(N!)";
+    public MathematicalFunction timeComplexity { get; } = new("N!", "");
 
     // --- Solver ---
     public string solve(NQUEENS problem) {
@@ -27,6 +29,7 @@ class NQueensBacktracking : ISolver<NQUEENS> {
             return formatCertificate(board);
         }
 
+        if (timerHasExpired) return SolveRun.TimedOutAnswer; // #935: backtrack() returned false because it was stopped
         return "{}";
     }
 

@@ -18,12 +18,13 @@ class EXACTCOVER : IProblem<ExactCoverBruteForce, ExactCoverVerifier, ExactCover
     public string inputDescription { get; } = "X, a set, and S, a collection of subsets of X";
     public string outputDescription { get; } = "True or False, whether an exact cover of X exists using subsets from S";
     public string source { get; } = "Karp, Richard M. Reducibility among combinatorial problems. Complexity of computer computations. Springer, Boston, MA, 1972. 85-103.";
+    public string sourceFile { get; } = SourceFile.Path();
     public string sourceLink { get; } = "https://cgi.di.uoa.gr/~sgk/teaching/grad/handouts/karp.pdf";
     public string[] contributors { get; } = { "Caleb Eardley", "Alex Diviney", "Michael Trosper" };
 
 
     public const string InstanceGrammar = "{(U,S) | U is set, S subset {a | a subset U}}";
-    private static string _defaultInstance = "({1,2,3,4},{{1,2,3},{2,3},{4,1}})";
+    private static string _defaultInstance = "({1,2,3,4,5,6,7},{{1,4,7},{1,4},{4,5,7},{3,5,6},{2,3,6,7},{2,7}})";
     public string defaultInstance { get; } = _defaultInstance;
     public string instance { get; set; } = string.Empty;
     public string instanceFormat { get; } = $"Format: {InstanceGrammar} Example: {_defaultInstance}";
@@ -37,6 +38,7 @@ class EXACTCOVER : IProblem<ExactCoverBruteForce, ExactCoverVerifier, ExactCover
     // Declared, not derived. EXACTCOVER is NP-complete (Karp, 1972).
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
     public ProblemType problemType { get; } = ProblemType.SetsAndPartitions;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
     List<List<string>> _S = new List<List<string>>();
     List<string> _X = new List<string>();
 

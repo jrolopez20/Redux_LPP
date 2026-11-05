@@ -11,6 +11,7 @@ class GareyJohnson : IReduction<SAT3, DM3> {
     public string reductionName { get; } = "Garey-Johnson Reduction";
     public string reductionDefinition { get; } = "Garey and Johnson Reduction converts 3SAT to a set of elements, and constraints of a 3-dimensional matching problem. The varibles are represented by wheels of 2 constraints for each clause a variable is in. The clauses are each mapped to a group of contraints all sharing two elements, with the third attaching to a varible gadget. Garbage collection gadgets are than created as constrains that assure any unincluded elements outside of the clause gadget are included in a matching.";
     public string source { get; } = "Garey, M. R. and David S. Johnson. “Computers and Intractability: A Guide to the Theory of NP-Completeness.” (1978).";
+    public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = { "Caleb Eardley" };
     // The garbage-collection gadget loop ("for i in 0..(literals-clauses): foreach j in
     // Z") unconditionally emits one M-triple per (i,j) pair — O(n^2) matching triples.
@@ -203,19 +204,26 @@ class GareyJohnson : IReduction<SAT3, DM3> {
             }
         }
 
-        // mapping solution to clause gadgets
+        // mapping solution to clause gadgets. reduce() reserves one specific Z element for each
+        // literal occurrence of each clause (the first unused z_<literal>_* in order), and the
+        // only clause triples that exist in M are those reserved ones. Replay that reservation so
+        // the mapped triple is actually a member of reductionTo.M.
+        List<string> unusedLiterals = new List<string>(reductionTo.Z);
         for (int i = 0; i < reductionFrom.clauses.Count; i++) {
+            string? chosen = null;
             foreach (string literal in reductionFrom.clauses[i]) {
-                if (!solutionList.Contains(literal)) {
+                string? reserved = unusedLiterals.Find(z => z.Contains("z_" + literal));
+                if (reserved is null) {
                     continue;
                 }
-                string? found = availableZ.Find(z => z.Contains("z_" + literal + "_"));
-                if (found is null) {
-                    continue;
+                unusedLiterals.Remove(reserved);
+                if (chosen is null && solutionList.Contains(literal) && availableZ.Contains(reserved)) {
+                    chosen = reserved;
                 }
-                mappedSolutionList.Add(string.Format("{{x_clause_{0},y_clause{0},{1}}}", i, found));
-                availableZ.Remove(found);
-                break;
+            }
+            if (chosen is not null) {
+                mappedSolutionList.Add(string.Format("{{x_clause_{0},y_clause{0},{1}}}", i, chosen));
+                availableZ.Remove(chosen);
             }
         }
 

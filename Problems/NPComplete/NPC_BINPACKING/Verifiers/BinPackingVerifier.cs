@@ -29,12 +29,13 @@ class BinPackingVerifier : IVerifier<BINPACKING> {
     public const string CertificateExample = "((8,2),(7,3),(6,4))";
 
     //  Metadata
-    public string verifierName { get; } = "Default Bin Packing Verifier";
+    public string verifierName { get; } = "Bin Packing Solution Verifier";
 
     // Explains all three checks and the overall time complexity.
     public string verifierDefinition { get; } = "Polynomial-time verifier for Bin Packing. Given a problem instance <S, C, K> and a candidate certificate representing a partition of S into bins, the verifier checks three conditions: (1) the multiset of item sizes appearing in the certificate equals S exactly (every item appears the correct number of times, no items missing or added), (2) the sum of sizes in each bin does not exceed C, and (3) the number of non-empty bins does not exceed K. The verifier runs in O(n log n) time, dominated by the sort used for multiset comparison.";
 
     public string source { get; } = "Garey, M. R., and Johnson, D. S. Computers and Intractability: A Guide to the Theory of NP-Completeness. W. H. Freeman, 1979. Problem SR1.";
+    public string sourceFile { get; } = SourceFile.Path();
 
     public string[] contributors { get; } = { "Himanshu Jha", "Rakesh Itani", "Prashant Aguragai" };
 
