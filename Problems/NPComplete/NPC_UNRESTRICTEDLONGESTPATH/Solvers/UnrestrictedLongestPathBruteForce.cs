@@ -26,7 +26,7 @@ class UnrestrictedLongestPathBruteForce : ISolver<UNRESTRICTEDLONGESTPATH> {
         if (graph is null) return UnrestrictedLongestPathSearchGraph.Timeout;
 
         // A longer witness has a prefix of exactly K edges, so K+1 vertices suffice.
-        int target = problem.K + 1;
+        int target = checked((int)problem.K + 1);
         int[] candidate = new int[target];
         int[] next = new int[target];
         bool[] used = new bool[graph.Count];
