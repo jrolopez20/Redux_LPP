@@ -6,12 +6,12 @@ namespace API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Verifiers;
 
 class UnrestrictedLongestPathVerifier : IVerifier<UNRESTRICTEDLONGESTPATH> {
     public const string CertificateGrammar =
-        "{P | P is list}; write (v0,...,vl) with distinct declared vertices, adjacent consecutive vertices, and l >= k. " +
-        "A single vertex (v) certifies k=0. () denotes no witness and verifies false.";
-    public const string CertificateExample = "(1,2,3)";
+        "Write {v0,...,vl} as an ordered sequence with distinct declared vertices, adjacent consecutive vertices, and l >= k. " +
+        "A single vertex {v} certifies k=0. {} denotes no witness and verifies false.";
+    public const string CertificateExample = "{1,2,3}";
     private static readonly Regex CertificateSyntax = new(
-        @"\A\s*\(\s*(?:" + UNRESTRICTEDLONGESTPATH.VertexPattern + @"(?:\s*,\s*" +
-        UNRESTRICTEDLONGESTPATH.VertexPattern + @")*)?\s*\)\s*\z",
+        @"\A\s*\{\s*(?:" + UNRESTRICTEDLONGESTPATH.VertexPattern + @"(?:\s*,\s*" +
+        UNRESTRICTEDLONGESTPATH.VertexPattern + @")*)?\s*\}\s*\z",
         RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
     public string verifierName { get; } = "Default Unrestricted Longest Path Problem Verifier";
     public string verifierDefinition { get; } =
@@ -27,10 +27,12 @@ class UnrestrictedLongestPathVerifier : IVerifier<UNRESTRICTEDLONGESTPATH> {
         List<string> path;
         try {
             if (string.IsNullOrWhiteSpace(certificate) || !CertificateSyntax.IsMatch(certificate)) {
-                throw new FormatException("expected an ordered vertex list, such as (1,2,3)");
+                throw new FormatException("expected a brace-delimited ordered vertex sequence, such as {1,2,3}");
             }
             StringParser parser = new("{P | P is list}");
-            parser.parse(string.Concat(certificate.Where(c => !char.IsWhiteSpace(c))));
+            // Convert only the outer delimiters for SPADE list parsing; preserve vertex order and duplicates.
+            string compact = string.Concat(certificate.Where(c => !char.IsWhiteSpace(c)));
+            parser.parse("(" + compact[1..^1] + ")");
             path = parser["P"].ToList().Select(v => v.ToString()).ToList();
         } catch (Exception ex) when (ex is not CertificateParseException && ex is not OutOfMemoryException) {
             throw new CertificateParseException(problem, certificate, ex.Message, ex);
@@ -51,3 +53,4 @@ class UnrestrictedLongestPathVerifier : IVerifier<UNRESTRICTEDLONGESTPATH> {
         return true;
     }
 }
+
