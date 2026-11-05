@@ -43,7 +43,7 @@ class UnrestrictedLongestPathSubsetDP : ISolver<UNRESTRICTEDLONGESTPATH> {
             frontier.Add((bits[v], v));
         }
 
-        int target = problem.K + 1;
+        int target = checked((int)problem.K + 1);
         for (int length = 1; length < target; length++) {
             List<(BigInteger Mask, int Last)> nextLayer = new();
             foreach (var state in frontier) {
