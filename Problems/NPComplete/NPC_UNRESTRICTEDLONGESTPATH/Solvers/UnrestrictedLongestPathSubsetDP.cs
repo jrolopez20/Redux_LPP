@@ -43,7 +43,8 @@ class UnrestrictedLongestPathSubsetDP : ISolver<UNRESTRICTEDLONGESTPATH> {
             frontier.Add((bits[v], v));
         }
 
-        int target = problem.K + 1;
+        // TryTrivial already ensures 0 < K < nodes.Count, so this conversion is safe.
+        int target = checked((int)problem.K + 1);
         for (int length = 1; length < target; length++) {
             List<(BigInteger Mask, int Last)> nextLayer = new();
             foreach (var state in frontier) {
