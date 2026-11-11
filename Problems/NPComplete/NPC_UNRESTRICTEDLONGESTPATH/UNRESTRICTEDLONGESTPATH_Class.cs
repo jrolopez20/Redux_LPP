@@ -7,14 +7,13 @@ using API.DummyClasses;
 using API.Interfaces;
 using API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Solvers;
 using API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Verifiers;
-using API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Visualizations;
 using SPADE;
 
 namespace API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH;
 
-class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathBacktracking, UnrestrictedLongestPathVerifier, UnrestrictedLongestPathVisualization, UtilCollectionGraph> {
+class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathBacktracking, UnrestrictedLongestPathVerifier, DummyVisualization, UtilCollectionGraph> {
     public const string InstanceGrammar = "{((N,E),K) | N is set, E subset N unorderedcross N, K is int}";
-    private const string DefaultInstance = "(({1,2,3,4},{{1,2},{2,3}}),2)";
+    private const string DefaultInstance = "(({1,2,3,4,5},{{1,2},{2,3},{2,4},{4,5}}),3)";
     internal const string VertexPattern = @"[^\s,{}()]+";
     private const string Vertex = "(?<vertex>" + VertexPattern + ")";
     private const string Edge = @"(?<edge>\{\s*" + VertexPattern + @"\s*,\s*" + VertexPattern + @"\s*\})";
@@ -59,7 +58,7 @@ class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathBacktrackin
         $"Format: {UnrestrictedLongestPathVerifier.CertificateGrammar} Example: {UnrestrictedLongestPathVerifier.CertificateExample}";
     public UnrestrictedLongestPathBacktracking defaultSolver { get; } = new();
     public UnrestrictedLongestPathVerifier defaultVerifier { get; } = new();
-    public UnrestrictedLongestPathVisualization defaultVisualization { get; } = new UnrestrictedLongestPathVisualization();
+    public DummyVisualization defaultVisualization { get; } = new();
     public UtilCollectionGraph graph { get; }
     public IReadOnlyList<string> nodes { get; }
     public IReadOnlyList<KeyValuePair<string, string>> edges { get; }
