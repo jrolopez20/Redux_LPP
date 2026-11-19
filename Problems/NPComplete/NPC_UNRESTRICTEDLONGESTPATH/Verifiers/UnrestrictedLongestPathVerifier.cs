@@ -8,12 +8,12 @@ class UnrestrictedLongestPathVerifier : IVerifier<UNRESTRICTEDLONGESTPATH> {
     public const string CertificateGrammar =
         "Write {v0,...,vl} as an ordered sequence with distinct declared vertices, adjacent consecutive vertices, and l >= k. " +
         "A single vertex {v} certifies k=0. {} denotes no witness and verifies false.";
-    public const string CertificateExample = "{1,2,3}";
+    public const string CertificateExample = "{2,6,7,3,4,1,5}";
     private static readonly Regex CertificateSyntax = new(
         @"\A\s*\{\s*(?:" + UNRESTRICTEDLONGESTPATH.VertexPattern + @"(?:\s*,\s*" +
         UNRESTRICTEDLONGESTPATH.VertexPattern + @")*)?\s*\}\s*\z",
         RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
-    public string verifierName { get; } = "Default Unrestricted Longest Path Problem Verifier";
+    public string verifierName { get; } = "Unrestricted Longest Path Problem Solution Verifier";
     public string verifierDefinition { get; } =
         "Checks that an ordered list is a simple path with at least k edges, allowing any endpoints.";
     public string source { get; } = "Direct verification of the simple-path certificate definition.";

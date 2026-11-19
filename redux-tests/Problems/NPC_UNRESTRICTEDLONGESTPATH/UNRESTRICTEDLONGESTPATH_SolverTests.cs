@@ -51,7 +51,7 @@ public class UNRESTRICTEDLONGESTPATH_SolverTests {
         ISolver solver = CreateSolver(solverName);
         var problem = new UNRESTRICTEDLONGESTPATH(input);
         string answer = solver.solve(input);
-        Assert.NotEqual("timeout", answer);
+        Assert.NotEqual(SolveRun.TimedOutAnswer, answer);
         Assert.Equal(yes, answer != "{}");
         Assert.Equal(yes, problem.defaultVerifier.verify(problem, answer));
         if (yes) AssertWitnessIndependently(problem, answer);
@@ -76,7 +76,7 @@ public class UNRESTRICTEDLONGESTPATH_SolverTests {
         ISolver solver = CreateSolver(solverName);
         const string instance = "(({a,b},{{a,b}}),1)";
         solver.TimerExpired();
-        Assert.Equal("timeout", solver.solve(instance));
+        Assert.Equal(SolveRun.TimedOutAnswer, solver.solve(instance));
         solver.ResetTimer();
         var problem = new UNRESTRICTEDLONGESTPATH(instance);
         Assert.True(problem.defaultVerifier.verify(problem, solver.solve(instance)));
@@ -103,7 +103,7 @@ public class UNRESTRICTEDLONGESTPATH_SolverTests {
             Assert.True(started.Wait(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
             await Task.Delay(10, TestContext.Current.CancellationToken);
             solver.TimerExpired();
-            Assert.Equal("timeout", await work.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
+            Assert.Equal(SolveRun.TimedOutAnswer, await work.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
         } finally {
             solver.TimerExpired();
         }
@@ -137,7 +137,7 @@ public class UNRESTRICTEDLONGESTPATH_SolverTests {
     [InlineData(nameof(UnrestrictedLongestPathBruteForce), SolverType.BruteForce, SolverComplexityBucket.Factorial)]
     [InlineData(nameof(UnrestrictedLongestPathBacktracking), SolverType.Backtracking, SolverComplexityBucket.Factorial)]
     [InlineData(nameof(UnrestrictedLongestPathSubsetDP), SolverType.DynamicProgramming, SolverComplexityBucket.Exponential)]
-    public void Solver_MetadataAndRuntimeDiscoveryAreCompatible(string solverName, SolverType type, SolverComplexityBucket bucket) {
+    public async Task Solver_MetadataAndRuntimeDiscoveryAreCompatible(string solverName, SolverType type, SolverComplexityBucket bucket) {
         ISolver solver = CreateSolver(solverName);
         Assert.Equal(type, solver.solverType);
         Assert.Equal(bucket, solver.complexityBucket);
@@ -147,7 +147,7 @@ public class UNRESTRICTEDLONGESTPATH_SolverTests {
         Assert.True(solver.spaceComplexity.Evaluate(("n", 5), ("m", 4)) > 0);
         Assert.True(ProblemProvider.Solvers.ContainsKey(solverName.ToLowerInvariant()));
         Assert.IsType<ContentResult>(new ProblemProvider().info(solverName));
-        var response = Assert.IsType<ContentResult>(new ProblemProvider().solve(solverName, "(({a,b},{{a,b}}),1)"));
+        var response = Assert.IsType<ContentResult>(await new ProblemProvider().solve(solverName, "(({a,b},{{a,b}}),1)"));
         string answer = JsonSerializer.Deserialize<string>(response.Content!)!;
         var problem = new UNRESTRICTEDLONGESTPATH("(({a,b},{{a,b}}),1)");
         Assert.True(problem.defaultVerifier.verify(problem, answer));
@@ -178,7 +178,7 @@ public class UNRESTRICTEDLONGESTPATH_SolverTests {
                     foreach (string solverName in SolverNames) {
                         solverRuns++;
                         string answer = CreateSolver(solverName).solve(input);
-                        Assert.NotEqual("timeout", answer);
+                        Assert.NotEqual(SolveRun.TimedOutAnswer, answer);
                         Assert.Equal(maximum >= k, answer != "{}");
                         Assert.Equal(maximum >= k, problem.defaultVerifier.verify(problem, answer));
                         if (answer != "{}") AssertWitnessIndependently(problem, answer);

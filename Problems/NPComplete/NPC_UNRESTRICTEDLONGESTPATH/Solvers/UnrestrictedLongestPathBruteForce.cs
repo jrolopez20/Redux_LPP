@@ -6,7 +6,7 @@ class UnrestrictedLongestPathBruteForce : ISolver<UNRESTRICTEDLONGESTPATH> {
     public string solverName { get; } = "Unrestricted Longest Path Brute Force";
     public string solverDefinition { get; } =
         "Enumerates every ordered sequence of K+1 distinct vertices without checking partial adjacency. " +
-        "Only complete candidates are tested. Returns a path, {} for an exhaustive NO, or timeout.";
+        "Only complete candidates are tested. Returns a path, {} for an exhaustive NO, or Redux's stopped message.";
     public string source { get; } = "Elementary exhaustive enumeration of ordered vertex sequences.";
     public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = Array.Empty<string>();
@@ -14,8 +14,8 @@ class UnrestrictedLongestPathBruteForce : ISolver<UNRESTRICTEDLONGESTPATH> {
     public bool timerHasExpired { get => expired; set => expired = value; }
     public SolverType solverType { get; } = SolverType.BruteForce;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Factorial;
-    public string complexity { get; } = "O(n^2 * n! + m), n = |V|, m = |E|; conservative worst-case bound, excluding parsing";
-    public string spaceComplexity { get; } = "O(n + m), n = |V|, m = |E|; excluding parsing";
+    public MathematicalFunction timeComplexity { get; } = new("n^2 * n! + m", ", n = |V|, m = |E|; conservative worst-case bound, excluding parsing");
+    public MathematicalFunction spaceComplexity { get; } = new("n + m", ", n = |V|, m = |E|; excluding parsing");
 
     public UnrestrictedLongestPathBruteForce() { }
 

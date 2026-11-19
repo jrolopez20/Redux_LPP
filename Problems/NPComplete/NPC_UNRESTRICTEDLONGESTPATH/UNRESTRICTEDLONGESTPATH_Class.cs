@@ -44,6 +44,7 @@ class UNRESTRICTEDLONGESTPATH : IGraphProblem<UnrestrictedLongestPathBacktrackin
     public string sourceFile { get; } = "Problems/NPComplete/NPC_UNRESTRICTEDLONGESTPATH/UNRESTRICTEDLONGESTPATH_Class.cs";
     public string wikiName { get; } = "";
     public ComplexityClass complexityClass { get; } = ComplexityClass.NPComplete;
+    public ProblemVariant problemVariant { get; } = ProblemVariant.Decision;
     public ProblemType problemType { get; } = ProblemType.GraphTheory;
     // No human authorship is asserted for this generated implementation.
     public string[] contributors { get; } = Array.Empty<string>();

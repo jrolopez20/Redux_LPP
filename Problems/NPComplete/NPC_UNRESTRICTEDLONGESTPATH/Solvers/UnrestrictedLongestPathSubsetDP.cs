@@ -8,7 +8,7 @@ class UnrestrictedLongestPathSubsetDP : ISolver<UNRESTRICTEDLONGESTPATH> {
     public string solverDefinition { get; } =
         "Exact sparse subset dynamic programming. State (S,v) records a simple path visiting exactly S and ending at v. " +
         "Equivalent prefixes are merged; parent links reconstruct a witness after K+1 vertices. " +
-        "Returns a path, {} for an exhaustive NO, or timeout.";
+        "Returns a path, {} for an exhaustive NO, or Redux's stopped message.";
     public string source { get; } =
         "Held, M., and Karp, R. M. (1962). A Dynamic Programming Approach to Sequencing Problems. " +
         "Journal of the Society for Industrial and Applied Mathematics, 10(1), 196-210. " +
@@ -21,8 +21,8 @@ class UnrestrictedLongestPathSubsetDP : ISolver<UNRESTRICTEDLONGESTPATH> {
     public SolverType solverType { get; } = SolverType.DynamicProgramming;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Exponential;
     // BigInteger masks can span O(n) machine words: include that conservative factor.
-    public string complexity { get; } = "O(2^n * n * (n + m)), n = |V|, m = |E|; expected dictionary costs with BigInteger operations, excluding parsing";
-    public string spaceComplexity { get; } = "O(2^n * n^2 + m), n = |V|, m = |E|; conservative machine-word bound including BigInteger masks, excluding parsing";
+    public MathematicalFunction timeComplexity { get; } = new("2^n * n * (n + m)", ", n = |V|, m = |E|; expected dictionary costs with BigInteger operations, excluding parsing");
+    public MathematicalFunction spaceComplexity { get; } = new("2^n * n^2 + m", ", n = |V|, m = |E|; conservative machine-word bound including BigInteger masks, excluding parsing");
 
     public UnrestrictedLongestPathSubsetDP() { }
 

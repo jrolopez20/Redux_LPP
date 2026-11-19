@@ -7,7 +7,7 @@ class UnrestrictedLongestPathBacktracking : ISolver<UNRESTRICTEDLONGESTPATH> {
     public string solverDefinition { get; } =
         "Extends simple paths only along edges to unused vertices, starting at every vertex. " +
         "Prunes a prefix when too few unused vertices remain reachable from its endpoint. " +
-        "Returns a path, {} for an exhaustive NO, or timeout.";
+        "Returns a path, {} for an exhaustive NO, or Redux's stopped message.";
     public string source { get; } = "Exact depth-first backtracking with a reachable-vertex upper bound.";
     public string sourceFile { get; } = SourceFile.Path();
     public string[] contributors { get; } = Array.Empty<string>();
@@ -15,8 +15,8 @@ class UnrestrictedLongestPathBacktracking : ISolver<UNRESTRICTEDLONGESTPATH> {
     public bool timerHasExpired { get => expired; set => expired = value; }
     public SolverType solverType { get; } = SolverType.Backtracking;
     public SolverComplexityBucket complexityBucket { get; } = SolverComplexityBucket.Factorial;
-    public string complexity { get; } = "O((n + m) * n!), n = |V|, m = |E|; conservative worst-case bound, excluding parsing";
-    public string spaceComplexity { get; } = "O(n + m), n = |V|, m = |E|; excluding parsing";
+    public MathematicalFunction timeComplexity { get; } = new("(n + m) * n!", ", n = |V|, m = |E|; conservative worst-case bound, excluding parsing");
+    public MathematicalFunction spaceComplexity { get; } = new("n + m", ", n = |V|, m = |E|; excluding parsing");
 
     public UnrestrictedLongestPathBacktracking() { }
 

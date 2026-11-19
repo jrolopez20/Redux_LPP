@@ -1,9 +1,11 @@
+using API.Interfaces;
+
 namespace API.Problems.NPComplete.NPC_UNRESTRICTEDLONGESTPATH.Solvers;
 
 // Shared representation only: the three search algorithms remain separate.
 internal sealed class UnrestrictedLongestPathSearchGraph {
     internal const string NoSolution = "{}";
-    internal const string Timeout = "timeout";
+    internal const string Timeout = SolveRun.TimedOutAnswer;
     internal string[] Labels { get; }
     internal int[][] Neighbors { get; }
     private readonly HashSet<(int, int)> edges;
